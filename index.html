@@ -23,20 +23,10 @@
     body.theme-trending { --accent: #00ff7b; --accent-rgb: 0, 255, 123; --bg: #050a06; }
     body.theme-anime { --accent: #ff69b4; --accent-rgb: 255, 105, 180; --bg: #140611; }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; transition: background 0.5s ease; }
+    html, body { width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; transition: background 0.5s ease; min-height: 100vh; }
     button, .btn, .gtab, .nav-btn { appearance: none; -webkit-appearance: none; background: none; border: none; font-family: inherit; cursor: pointer; outline: none; user-select: none; }
     .fade-in { animation: fadeIn 0.6s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Adblock Warning */
-    #adblock-warning {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-      background: rgba(0,0,0,0.95); z-index: 9999; display: none; 
-      align-items: center; justify-content: center; text-align: center; color: white;
-    }
-    #adblock-warning.show { display: flex; }
-    .adblock-content { max-width: 500px; padding: 2rem; }
-    .adblock-content h2 { color: var(--accent); margin-bottom: 1rem; }
 
     nav {
       position: sticky; top: 0; z-index: 1000;
@@ -141,25 +131,77 @@
       nav { height: 60px; justify-content: space-between; }
       .hero-title { font-size: 2.8rem; }
     }
+
+    /* SURVEY - FULL SIZE, NO ZOOM NEEDED */
+    #survey-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.92); backdrop-filter: blur(16px);
+      z-index: 10001; display: none; align-items: center; justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+    }
+    #survey-overlay.active { display: flex; }
+    .survey-container {
+      background: var(--surface); border-radius: 24px; border: 1px solid var(--border);
+      width: 100%; height: 100%; overflow: auto;
+      box-shadow: none; animation: surveyPop 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    @keyframes surveyPop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .survey-header {
+      padding: 20px 24px; background: rgba(var(--accent-rgb), 0.1);
+      border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .survey-header h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); margin: 0; letter-spacing: 1px; }
+    .survey-close { background: none; border: none; color: var(--muted); font-size: 28px; cursor: pointer; transition: 0.2s; width: 44px; height: 44px; border-radius: 50%; }
+    .survey-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+    .survey-body { padding: 30px 24px; flex: 1; max-width: 700px; margin: 0 auto; width: 100%; }
+    .survey-progress { margin-bottom: 30px; }
+    .survey-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .survey-progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+    .survey-progress-text { font-size: 13px; color: var(--muted); margin-top: 10px; text-align: right; }
+    .survey-question { margin-bottom: 30px; }
+    .survey-question-text { font-size: 1.6rem; font-weight: 700; margin-bottom: 28px; color: var(--text); line-height: 1.3; }
+    .survey-options { display: flex; flex-direction: column; gap: 14px; }
+    .survey-option {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 16px 20px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px;
+    }
+    .survey-option:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); transform: translateX(4px); }
+    .survey-option.selected { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+    .survey-option-radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; flex-shrink: 0; }
+    .survey-option.selected .survey-option-radio { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2); }
+    .survey-option-text { flex: 1; font-weight: 500; font-size: 1rem; }
+    .survey-textarea, .survey-input {
+      width: 100%; padding: 16px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 16px; color: var(--text); font-family: inherit; font-size: 1rem;
+      transition: 0.2s; resize: vertical;
+    }
+    .survey-textarea:focus, .survey-input:focus { outline: none; border-color: var(--accent); }
+    .survey-buttons { display: flex; gap: 16px; margin-top: 30px; }
+    .survey-btn { flex: 1; padding: 14px; border-radius: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; border: none; font-family: inherit; font-size: 1rem; }
+    .survey-btn-primary { background: var(--accent); color: #000; }
+    .survey-btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
+    .survey-btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); }
+    .survey-btn-secondary:hover { background: rgba(255,255,255,0.15); }
+    .survey-thanks { text-align: center; padding: 40px 20px; }
+    .survey-thanks-icon { font-size: 72px; margin-bottom: 20px; }
+    .survey-thanks h4 { font-size: 1.8rem; margin-bottom: 12px; color: var(--accent); }
+    .survey-invite { text-align: center; padding: 20px 0; }
+    .survey-invite p { margin-bottom: 28px; color: var(--text); font-size: 1.1rem; line-height: 1.5; }
+    .survey-invite-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    @media (max-width: 600px) {
+      .survey-body { padding: 20px 16px; }
+      .survey-question-text { font-size: 1.3rem; }
+      .survey-option { padding: 12px 16px; }
+      .survey-option-text { font-size: 0.9rem; }
+      .survey-header h3 { font-size: 1.4rem; }
+    }
   </style>
-
-  <!-- Original Ads -->
-  <script src="https://consciousdunkvastly.com/7b/51/29/7b51293907a281811b52afba5063c73e.js"></script>
-  <script async="async" data-cfasync="false" src="https://consciousdunkvastly.com/3c83dd7ae7a24046429182d7deadbcbc/invoke.js"></script>
-
-  <!-- New Ads Requested -->
-  <script src="https://consciousdunkvastly.com/93/69/04/936904a95a6c13dbd3e8045cf6123c8b.js"></script>
-  <script src="https://consciousdunkvastly.com/vnjtjjrg5?key=5f1576b4bcddbc7b50f61d7bed95ed4b"></script>
-  <script>
-    atOptions = {
-      'key' : '2eb3f8d2c12a20f1a7450b2ab5a830ba',
-      'format' : 'iframe',
-      'height' : 60,
-      'width' : 468,
-      'params' : {}
-    };
-  </script>
-  <script src="https://consciousdunkvastly.com/2eb3f8d2c12a20f1a7450b2ab5a830ba/invoke.js"></script>
 </head>
 <body class="theme-home">
 
@@ -183,15 +225,6 @@
 </nav>
 
 <main id="app"></main>
-
-<!-- Adblock Warning -->
-<div id="adblock-warning">
-  <div class="adblock-content">
-    <h2>Adblock Detected</h2>
-    <p>Please disable your ad blocker to support StreamDuck and continue watching.</p>
-    <button class="btn btn-primary" onclick="document.getElementById('adblock-warning').classList.remove('show')">I Turned It Off</button>
-  </div>
-</div>
 
 <template id="home-tpl">
   <div id="hero" class="fade-in">
@@ -232,7 +265,6 @@
       </div>
     </div>
   </div>
-  <div class="ad-container"><div class="ad-inline"><div id="container-3c83dd7ae7a24046429182d7deadbcbc-ad1" style="min-height: 90px;"></div></div></div>
   <div class="section fade-in">
     <div class="section-header"><h2 class="section-title">🎬 Movies</h2><a class="see-all" onclick="Router.go('movies')">See All →</a></div>
     <div class="scroll-row" id="topRatedRow"></div>
@@ -249,7 +281,6 @@
     <div class="genre-tabs" id="genreTabs"></div>
     <div class="movie-grid" id="movieGrid"></div>
     <div style="text-align: center; margin-top: 3rem;"><button class="btn btn-secondary" style="margin: 0 auto; width: auto;" onclick="App.loadMore()">Load More</button></div>
-    <div class="ad-container" style="margin-top: 2rem;"><div class="ad-inline"><div id="container-3c83dd7ae7a24046429182d7deadbcbc-ad2" style="min-height: 90px;"></div></div></div>
   </div>
 </template>
 
@@ -257,7 +288,6 @@
   <div class="section fade-in">
     <h1 id="searchTitle" class="section-title" style="margin-bottom: 1.5rem;"></h1>
     <div class="movie-grid" id="searchGrid"></div>
-    <div class="ad-container" style="margin-top: 2rem;"><div class="ad-inline"><div id="container-3c83dd7ae7a24046429182d7deadbcbc-ad3" style="min-height: 90px;"></div></div></div>
   </div>
 </template>
 
@@ -275,10 +305,18 @@
 
 <footer>
   <p>StreamDuck &copy; 2026</p>
-  <div class="ad-container" style="margin-top: 20px;">
-    <div id="footer-ad" style="min-height: 90px;"></div>
-  </div>
 </footer>
+
+<!-- SURVEY OVERLAY - FULL SIZE -->
+<div id="survey-overlay">
+  <div class="survey-container">
+    <div class="survey-header">
+      <h3>📋 STREAMDUCK FEEDBACK</h3>
+      <button class="survey-close" id="survey-close">✕</button>
+    </div>
+    <div id="survey-content" class="survey-body"></div>
+  </div>
+</div>
 
 <script>
 const CONFIG = {
@@ -565,7 +603,6 @@ const App = {
   }
 };
 
-// Search handler
 document.getElementById('searchInput').addEventListener('input', (e) => { 
   clearTimeout(State.searchTimer); 
   const val = e.target.value; 
@@ -584,28 +621,192 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') UI.closePlayer(); 
 });
 
-// Adblock Detection
-function detectAdBlock() {
-  const warning = document.getElementById('adblock-warning');
-  const tester = document.createElement('div');
-  tester.style.height = '1px';
-  tester.style.width = '1px';
-  tester.style.position = 'absolute';
-  tester.style.left = '-10000px';
-  tester.style.top = '-10000px';
-  document.body.appendChild(tester);
-  setTimeout(() => {
-    if (tester.offsetHeight === 0) {
-      warning.classList.add('show');
+// ==============================================
+// SURVEY SYSTEM - FULL SIZE
+// ==============================================
+(function() {
+  const WEBHOOK_URL = 'https://discord.com/api/webhooks/1514940789401059358/B-wps7EQ4ER3rlcEKV480jw6Wsj2_LsrM8ihsZYooYBTHuHhR4guaVBNNjdRJbkXhX3H';
+  
+  const QUESTIONS = [
+    { id: 'invite', type: 'invite', text: 'Would you like to help improve StreamDuck by taking a quick survey?', options: ['Yes, I\'ll help', 'No, maybe later'] },
+    { id: 'genres', type: 'multi', text: 'What genres do you watch most? (Select all that apply)', options: ['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance', 'Thriller', 'Fantasy', 'Documentary', 'Anime'] },
+    { id: 'preference', type: 'single', text: 'Do you prefer movies or TV shows?', options: ['Movies only', 'TV shows only', 'Both equally'] },
+    { id: 'discovery', type: 'single', text: 'How do you usually find new content?', options: ['Search', 'Trending section', 'Recommendations', 'Social media', 'Friends', 'Random roulette'] },
+    { id: 'rating', type: 'single', text: 'Rate StreamDuck overall (1-5 stars)', options: ['1 - Poor', '2 - Fair', '3 - Good', '4 - Very Good', '5 - Excellent'] },
+    { id: 'failRate', type: 'single', text: 'How often do video sources fail to play?', options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'] },
+    { id: 'featureRequest', type: 'text', text: 'What feature would you like to see most? (Be specific)', placeholder: 'e.g., Watchlist, Continue watching, Downloads, Comments, Dark mode, Mobile app...' },
+    { id: 'otherFeedback', type: 'textarea', text: 'Any other feedback or suggestions?', placeholder: 'Tell us what you think about StreamDuck...' }
+  ];
+  
+  let currentStep = 0;
+  let answers = {};
+  let surveyActive = false;
+  let surveyStarted = false;
+  
+  const overlay = document.getElementById('survey-overlay');
+  const surveyContent = document.getElementById('survey-content');
+  const closeBtn = document.getElementById('survey-close');
+  
+  window.showSurvey = function() {
+    if (surveyActive) return;
+    surveyActive = true;
+    currentStep = 0;
+    answers = {};
+    overlay.classList.add('active');
+    renderStep();
+  };
+  
+  window.hideSurvey = function() {
+    overlay.classList.remove('active');
+    surveyActive = false;
+    if (surveyStarted) localStorage.setItem('surveyTaken', 'true');
+  };
+  
+  function renderStep() {
+    const q = QUESTIONS[currentStep];
+    if (!q) {
+      sendToDiscord();
+      renderThanks();
+      return;
     }
-    document.body.removeChild(tester);
-  }, 1000);
-}
+    
+    let html = '';
+    const totalQuestions = QUESTIONS.filter(qq => qq.id !== 'invite').length;
+    const currentQNum = QUESTIONS.slice(0, currentStep + 1).filter(qq => qq.id !== 'invite').length;
+    const percent = totalQuestions > 0 ? (currentQNum / totalQuestions) * 100 : 0;
+    
+    html += `<div class="survey-progress">
+      <div class="survey-progress-bar"><div class="survey-progress-fill" style="width: ${percent}%;"></div></div>
+      <div class="survey-progress-text">Question ${currentQNum} of ${totalQuestions}</div>
+    </div>`;
+    
+    html += `<div class="survey-question"><div class="survey-question-text">${q.text}</div>`;
+    
+    if (q.type === 'invite') {
+      html += `<div class="survey-invite">
+        <p>Your feedback helps us improve StreamDuck with better features, more sources, and a smoother experience.</p>
+        <div class="survey-invite-buttons">
+          <button class="survey-btn survey-btn-primary" onclick="window.selectInvite(true)">✅ Yes, I'll help</button>
+          <button class="survey-btn survey-btn-secondary" onclick="window.selectInvite(false)">❌ No, maybe later</button>
+        </div>
+      </div>`;
+    }
+    else if (q.type === 'single') {
+      html += `<div class="survey-options">`;
+      q.options.forEach(opt => {
+        const isSelected = answers[q.id] === opt;
+        html += `<div class="survey-option ${isSelected ? 'selected' : ''}" onclick="window.selectOption('${q.id}', '${opt.replace(/'/g, "\\'")}')">
+          <div class="survey-option-radio"></div>
+          <div class="survey-option-text">${opt}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    else if (q.type === 'multi') {
+      const selected = answers[q.id] || [];
+      html += `<div class="survey-options">`;
+      q.options.forEach(opt => {
+        const isSelected = selected.includes(opt);
+        html += `<div class="survey-option ${isSelected ? 'selected' : ''}" onclick="window.toggleMultiOption('${q.id}', '${opt.replace(/'/g, "\\'")}')">
+          <div class="survey-option-radio"></div>
+          <div class="survey-option-text">${opt}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    else if (q.type === 'text') {
+      const val = answers[q.id] || '';
+      html += `<input type="text" class="survey-input" id="text-input-${q.id}" placeholder="${q.placeholder || 'Type your answer...'}" value="${val.replace(/"/g, '&quot;')}">`;
+    }
+    else if (q.type === 'textarea') {
+      const val = answers[q.id] || '';
+      html += `<textarea class="survey-textarea" id="text-input-${q.id}" rows="5" placeholder="${q.placeholder || 'Type your answer...'}">${val}</textarea>`;
+    }
+    
+    html += `</div>`;
+    
+    if (q.type !== 'invite') {
+      html += `<div class="survey-buttons">`;
+      if (currentStep > 0) html += `<button class="survey-btn survey-btn-secondary" onclick="window.prevStep()">← Back</button>`;
+      html += `<button class="survey-btn survey-btn-primary" onclick="window.nextStep()">${currentStep === QUESTIONS.length - 1 ? 'Submit →' : 'Next →'}</button>`;
+      html += `</div>`;
+    }
+    
+    surveyContent.innerHTML = html;
+  }
+  
+  window.selectInvite = function(accept) {
+    if (accept) { surveyStarted = true; currentStep++; renderStep(); } 
+    else { window.hideSurvey(); }
+  };
+  
+  window.selectOption = function(qId, value) { answers[qId] = value; renderStep(); };
+  
+  window.toggleMultiOption = function(qId, value) {
+    let selected = answers[qId] || [];
+    if (selected.includes(value)) selected = selected.filter(v => v !== value);
+    else selected.push(value);
+    answers[qId] = selected;
+    renderStep();
+  };
+  
+  window.nextStep = function() {
+    const q = QUESTIONS[currentStep];
+    if (q.type === 'text' || q.type === 'textarea') {
+      const input = document.getElementById(`text-input-${q.id}`);
+      if (input) answers[q.id] = input.value.trim() || '(not specified)';
+    }
+    if (q.type === 'single' && !answers[q.id]) return;
+    if (q.type === 'multi' && (!answers[q.id] || answers[q.id].length === 0)) return;
+    currentStep++;
+    renderStep();
+  };
+  
+  window.prevStep = function() { if (currentStep > 0) { currentStep--; renderStep(); } };
+  
+  function renderThanks() {
+    surveyContent.innerHTML = `
+      <div class="survey-thanks">
+        <div class="survey-thanks-icon">🎉</div>
+        <h4>Thank You!</h4>
+        <p style="color: var(--muted); margin-top: 8px;">Your feedback has been sent to the StreamDuck team.</p>
+        <button class="survey-btn survey-btn-primary" style="margin-top: 20px;" onclick="window.hideSurvey()">Close</button>
+      </div>
+    `;
+  }
+  
+  async function sendToDiscord() {
+    const embed = {
+      title: '📝 New StreamDuck Feedback',
+      color: 0xffa500,
+      timestamp: new Date().toISOString(),
+      fields: [],
+      footer: { text: `StreamDuck User • ${new Date().toLocaleString()}` }
+    };
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    embed.fields.push({ name: '📱 Device', value: isMobile ? 'Mobile/Tablet' : 'Desktop', inline: true });
+    if (answers.genres?.length) embed.fields.push({ name: '🎬 Genres', value: answers.genres.join(', '), inline: false });
+    if (answers.preference) embed.fields.push({ name: '📺 Preference', value: answers.preference, inline: true });
+    if (answers.discovery) embed.fields.push({ name: '🔍 Discovery', value: answers.discovery, inline: true });
+    if (answers.rating) embed.fields.push({ name: '⭐ Rating', value: answers.rating, inline: true });
+    if (answers.failRate) embed.fields.push({ name: '⚠️ Source Failure', value: answers.failRate, inline: true });
+    if (answers.featureRequest && answers.featureRequest !== '(not specified)') embed.fields.push({ name: '💡 Feature Request', value: answers.featureRequest.substring(0, 500), inline: false });
+    if (answers.otherFeedback && answers.otherFeedback !== '(not specified)') embed.fields.push({ name: '💬 Other Feedback', value: answers.otherFeedback.substring(0, 500), inline: false });
+    try { await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [embed] }) }); } catch(e) { console.error(e); }
+  }
+  
+  closeBtn.onclick = () => window.hideSurvey();
+  
+  setTimeout(() => { if (!localStorage.getItem('surveyTaken')) window.showSurvey(); }, 1500);
+  
+  const surveyBtn = document.createElement('button');
+  surveyBtn.innerHTML = '📋 Feedback';
+  surveyBtn.style.cssText = 'position:fixed; bottom:20px; left:20px; background:var(--accent); border:none; border-radius:50px; padding:12px 20px; color:#000; font-weight:bold; cursor:pointer; z-index:10002; font-family:inherit; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:14px;';
+  surveyBtn.onclick = () => window.showSurvey();
+  document.body.appendChild(surveyBtn);
+})();
 
-window.onload = () => {
-  Router.go('home');
-  setTimeout(detectAdBlock, 2000);
-};
+window.onload = () => Router.go('home');
 </script>
 </body>
 </html>
