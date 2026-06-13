@@ -23,10 +23,11 @@
     body.theme-trending { --accent: #00ff7b; --accent-rgb: 0, 255, 123; --bg: #050a06; }
     body.theme-anime { --accent: #ff69b4; --accent-rgb: 255, 105, 180; --bg: #140611; }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; transition: background 0.5s ease; min-height: 100vh; }
+    html, body { width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; transition: background 0.5s ease; }
     button, .btn, .gtab, .nav-btn { appearance: none; -webkit-appearance: none; background: none; border: none; font-family: inherit; cursor: pointer; outline: none; user-select: none; }
     .fade-in { animation: fadeIn 0.6s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .hidden-section { display: none; }
 
     nav {
       position: sticky; top: 0; z-index: 1000;
@@ -99,24 +100,28 @@
     .card-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .card-year { font-size: 0.8rem; color: var(--muted); }
     .card-rating { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 3px 6px; border-radius: 5px; backdrop-filter: blur(4px); border: 1px solid rgba(var(--accent-rgb), 0.3); }
+    .watchlist-btn { margin-top: 8px; background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 5px 10px; font-size: 11px; cursor: pointer; color: #fff; font-weight: 600; transition: 0.2s; }
+    .watchlist-btn.in-watchlist { background: #ff4444; color: #fff; }
+    .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 0 0 0 var(--radius); }
     .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; width: 100%; }
     #playerModal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.96); backdrop-filter: blur(15px); padding: 20px; overflow-y: auto; }
     #playerModal.open { display: block; animation: modalFade 0.3s ease; }
     @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { max-width: 1100px; margin: 0 auto; width: 100%; }
-    .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 1rem; }
+    .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 1rem; flex-wrap: wrap; }
+    .player-actions { display: flex; gap: 10px; align-items: center; }
     .close-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; }
+    .player-watchlist-btn { background: rgba(255,255,255,0.15); border: 1px solid var(--border); border-radius: 30px; padding: 8px 16px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; color: white; font-weight: 500; }
+    .player-watchlist-btn.in-watchlist { background: #ff4444; border-color: #ff4444; }
     .iframe-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin-bottom: 25px; }
     .iframe-container iframe { width: 100%; height: 100%; border: none; }
     .p-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1; margin-bottom: 8px; }
     .p-meta { display: flex; gap: 15px; color: var(--muted); margin-bottom: 15px; font-size: 0.9rem; flex-wrap: wrap; }
     .p-overview { font-size: 1rem; line-height: 1.6; color: #ccc; max-width: 800px; }
-    .source-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+    .source-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .src-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: var(--transition); font-family: inherit; }
     .src-btn:hover { border-color: rgba(var(--accent-rgb), 0.5); color: var(--text); }
     .src-btn.active { background: rgba(var(--accent-rgb), 0.15); border-color: var(--accent); color: var(--accent); }
-    .ad-container { width: 100%; margin: 20px 0; text-align: center; }
-    .ad-inline { display: flex; justify-content: center; align-items: center; min-height: 90px; background: rgba(0,0,0,0.3); border-radius: 12px; overflow: hidden; }
     footer { padding: 3rem 5%; text-align: center; border-top: 1px solid var(--border); margin-top: 3rem; color: var(--muted); font-size: 0.85rem; width: 100%; }
     @media (max-width: 768px) {
       .shuffler-break { flex-direction: column; gap: 1.5rem; text-align: center; width: 95%; padding: 1.5rem; }
@@ -124,82 +129,12 @@
       .shuffler-info { transform: none; text-align: center; }
       .shuffler-btns { justify-content: center; }
       .nav-links { display: none; }
-      .nav-links.mobile-open { display: flex; position: absolute; top: 70px; left: 0; right: 0; flex-direction: column; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); padding: 1rem; border-bottom: 1px solid rgba(var(--accent-rgb), 0.18); }
+      .nav-links.mobile-open { display: flex; flex-direction: column; position: absolute; top: 70px; left: 0; right: 0; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); padding: 1rem; border-bottom: 1px solid rgba(var(--accent-rgb), 0.18); }
       .mobile-menu-btn { display: block; }
       .search-wrap { display: none; }
       .search-wrap.active { display: block; position: absolute; top: 70px; left: 0; right: 0; background: rgba(10,10,15,0.95); padding: 10px 4%; z-index: 999; }
       nav { height: 60px; justify-content: space-between; }
       .hero-title { font-size: 2.8rem; }
-    }
-
-    /* SURVEY - FULL SIZE, NO ZOOM NEEDED */
-    #survey-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.92); backdrop-filter: blur(16px);
-      z-index: 10001; display: none; align-items: center; justify-content: center;
-      font-family: 'DM Sans', sans-serif;
-    }
-    #survey-overlay.active { display: flex; }
-    .survey-container {
-      background: var(--surface); border-radius: 24px; border: 1px solid var(--border);
-      width: 100%; height: 100%; overflow: auto;
-      box-shadow: none; animation: surveyPop 0.3s ease;
-      display: flex; flex-direction: column;
-    }
-    @keyframes surveyPop {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .survey-header {
-      padding: 20px 24px; background: rgba(var(--accent-rgb), 0.1);
-      border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
-      position: sticky; top: 0; z-index: 10;
-    }
-    .survey-header h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); margin: 0; letter-spacing: 1px; }
-    .survey-close { background: none; border: none; color: var(--muted); font-size: 28px; cursor: pointer; transition: 0.2s; width: 44px; height: 44px; border-radius: 50%; }
-    .survey-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
-    .survey-body { padding: 30px 24px; flex: 1; max-width: 700px; margin: 0 auto; width: 100%; }
-    .survey-progress { margin-bottom: 30px; }
-    .survey-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-    .survey-progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
-    .survey-progress-text { font-size: 13px; color: var(--muted); margin-top: 10px; text-align: right; }
-    .survey-question { margin-bottom: 30px; }
-    .survey-question-text { font-size: 1.6rem; font-weight: 700; margin-bottom: 28px; color: var(--text); line-height: 1.3; }
-    .survey-options { display: flex; flex-direction: column; gap: 14px; }
-    .survey-option {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 16px;
-      padding: 16px 20px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px;
-    }
-    .survey-option:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); transform: translateX(4px); }
-    .survey-option.selected { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-    .survey-option-radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; flex-shrink: 0; }
-    .survey-option.selected .survey-option-radio { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2); }
-    .survey-option-text { flex: 1; font-weight: 500; font-size: 1rem; }
-    .survey-textarea, .survey-input {
-      width: 100%; padding: 16px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 16px; color: var(--text); font-family: inherit; font-size: 1rem;
-      transition: 0.2s; resize: vertical;
-    }
-    .survey-textarea:focus, .survey-input:focus { outline: none; border-color: var(--accent); }
-    .survey-buttons { display: flex; gap: 16px; margin-top: 30px; }
-    .survey-btn { flex: 1; padding: 14px; border-radius: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; border: none; font-family: inherit; font-size: 1rem; }
-    .survey-btn-primary { background: var(--accent); color: #000; }
-    .survey-btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
-    .survey-btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); }
-    .survey-btn-secondary:hover { background: rgba(255,255,255,0.15); }
-    .survey-thanks { text-align: center; padding: 40px 20px; }
-    .survey-thanks-icon { font-size: 72px; margin-bottom: 20px; }
-    .survey-thanks h4 { font-size: 1.8rem; margin-bottom: 12px; color: var(--accent); }
-    .survey-invite { text-align: center; padding: 20px 0; }
-    .survey-invite p { margin-bottom: 28px; color: var(--text); font-size: 1.1rem; line-height: 1.5; }
-    .survey-invite-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-
-    @media (max-width: 600px) {
-      .survey-body { padding: 20px 16px; }
-      .survey-question-text { font-size: 1.3rem; }
-      .survey-option { padding: 12px 16px; }
-      .survey-option-text { font-size: 0.9rem; }
-      .survey-header h3 { font-size: 1.4rem; }
     }
   </style>
 </head>
@@ -242,10 +177,38 @@
     </div>
     <div class="hero-dots" id="heroDots"></div>
   </div>
+
+  <!-- Continue Watching Section (hidden until items exist) -->
+  <div id="continue-section" class="section fade-in hidden-section">
+    <div class="section-header">
+      <h2 class="section-title">⏯️ Continue Watching</h2>
+      <a class="see-all" onclick="ContinueWatching.clearAll()">Clear All</a>
+    </div>
+    <div class="scroll-row" id="continue-row"></div>
+  </div>
+
+  <!-- Watchlist Section (hidden until items exist) -->
+  <div id="watchlist-section" class="section fade-in hidden-section">
+    <div class="section-header">
+      <h2 class="section-title">📌 My Watchlist</h2>
+      <a class="see-all" onclick="Watchlist.render()">Refresh</a>
+    </div>
+    <div class="scroll-row" id="watchlist-row"></div>
+  </div>
+
+  <!-- Most Watched Section (hidden until items exist) -->
+  <div id="mostwatched-section" class="section fade-in hidden-section">
+    <div class="section-header">
+      <h2 class="section-title">🔥 Your Recently Watched</h2>
+    </div>
+    <div class="scroll-row" id="mostwatched-row"></div>
+  </div>
+
   <div class="section fade-in">
     <div class="section-header"><h2 class="section-title">🔥 Trending</h2><a class="see-all" onclick="Router.go('trending')">See All →</a></div>
     <div class="scroll-row" id="trendingRow"></div>
   </div>
+
   <div class="shuffler-break fade-in">
     <div class="shuffler-text">
       <h2 class="shuffler-title">Stuck on what to watch?</h2>
@@ -265,10 +228,12 @@
       </div>
     </div>
   </div>
+
   <div class="section fade-in">
     <div class="section-header"><h2 class="section-title">🎬 Movies</h2><a class="see-all" onclick="Router.go('movies')">See All →</a></div>
     <div class="scroll-row" id="topRatedRow"></div>
   </div>
+
   <div class="section fade-in">
     <div class="section-header"><h2 class="section-title">📺 TV Shows</h2><a class="see-all" onclick="Router.go('tv')">See All →</a></div>
     <div class="scroll-row" id="tvRow"></div>
@@ -293,7 +258,16 @@
 
 <div id="playerModal">
   <div class="modal-content">
-    <div class="player-header"><div style="flex: 1;"><h2 class="p-title" id="pTitle"></h2><div class="p-meta" id="pMeta"></div></div><button class="close-btn" onclick="UI.closePlayer()">✕</button></div>
+    <div class="player-header">
+      <div style="flex: 1;">
+        <h2 class="p-title" id="pTitle"></h2>
+        <div class="p-meta" id="pMeta"></div>
+      </div>
+      <div class="player-actions">
+        <button class="player-watchlist-btn" id="playerWatchlistBtn">📋 + Watchlist</button>
+        <button class="close-btn" onclick="UI.closePlayer()">✕</button>
+      </div>
+    </div>
     <div class="source-toggle">
       <button class="src-btn active" onclick="UI.switchSource('pulp', this)">Source 1</button>
       <button class="src-btn" onclick="UI.switchSource('vidapi', this)">Source 2</button>
@@ -306,17 +280,6 @@
 <footer>
   <p>StreamDuck &copy; 2026</p>
 </footer>
-
-<!-- SURVEY OVERLAY - FULL SIZE -->
-<div id="survey-overlay">
-  <div class="survey-container">
-    <div class="survey-header">
-      <h3>📋 STREAMDUCK FEEDBACK</h3>
-      <button class="survey-close" id="survey-close">✕</button>
-    </div>
-    <div id="survey-content" class="survey-body"></div>
-  </div>
-</div>
 
 <script>
 const CONFIG = {
@@ -335,6 +298,227 @@ const State = {
   idleItems: [], idleIndex: 0, idleTimer: null, isShuffling: false, 
   currentMedia: null, currentType: null, currentImdbId: null, currentSource: 'pulp',
   currentSeason: 1, currentEpisode: 1, currentTmdbId: null
+};
+
+// ==============================================
+// SECTION VISIBILITY HELPERS
+// ==============================================
+function updateSectionVisibility() {
+  const watchlistSection = document.getElementById('watchlist-section');
+  const continueSection = document.getElementById('continue-section');
+  const mostwatchedSection = document.getElementById('mostwatched-section');
+  
+  const watchlistItems = Watchlist.get();
+  const continueItems = ContinueWatching.get();
+  const mostwatchedItems = MostWatched.get();
+  
+  if (watchlistSection) {
+    if (watchlistItems.length > 0) watchlistSection.classList.remove('hidden-section');
+    else watchlistSection.classList.add('hidden-section');
+  }
+  
+  if (continueSection) {
+    if (continueItems.length > 0) continueSection.classList.remove('hidden-section');
+    else continueSection.classList.add('hidden-section');
+  }
+  
+  if (mostwatchedSection) {
+    if (mostwatchedItems.length > 0) mostwatchedSection.classList.remove('hidden-section');
+    else mostwatchedSection.classList.add('hidden-section');
+  }
+}
+
+// ==============================================
+// WATCHLIST SYSTEM
+// ==============================================
+const Watchlist = {
+  add(item) {
+    let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
+    if (!list.find(i => i.id === item.id)) {
+      list.unshift(item);
+      localStorage.setItem('watchlist', JSON.stringify(list.slice(0, 50)));
+      this.showToast('✓ Added to watchlist');
+    } else {
+      this.showToast('Already in watchlist');
+      return false;
+    }
+    this.render();
+    updateSectionVisibility();
+    this.updatePlayerButton();
+    return true;
+  },
+  remove(id) {
+    let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
+    list = list.filter(i => i.id !== id);
+    localStorage.setItem('watchlist', JSON.stringify(list));
+    this.showToast('✗ Removed from watchlist');
+    this.render();
+    updateSectionVisibility();
+    this.updatePlayerButton();
+  },
+  isInWatchlist(id) {
+    let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
+    return list.some(i => i.id === id);
+  },
+  get() {
+    return JSON.parse(localStorage.getItem('watchlist') || '[]');
+  },
+  render() {
+    const container = document.getElementById('watchlist-row');
+    if (!container) return;
+    const items = this.get();
+    if (items.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = '';
+    items.forEach(item => {
+      const mediaItem = {
+        id: item.id,
+        title: item.title,
+        name: item.title,
+        poster_path: item.poster_path,
+        vote_average: item.vote_average || 7,
+        media_type: item.media_type || 'movie'
+      };
+      const card = UI.createCard(mediaItem, mediaItem.media_type);
+      container.appendChild(card);
+    });
+  },
+  updatePlayerButton() {
+    const btn = document.getElementById('playerWatchlistBtn');
+    if (!btn || !State.currentMedia) return;
+    const isIn = this.isInWatchlist(State.currentMedia.id);
+    if (isIn) {
+      btn.textContent = '✓ In Watchlist';
+      btn.classList.add('in-watchlist');
+    } else {
+      btn.textContent = '📋 + Watchlist';
+      btn.classList.remove('in-watchlist');
+    }
+  },
+  showToast(msg) {
+    let toast = document.getElementById('watchlist-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'watchlist-toast';
+      toast.style.cssText = 'position:fixed; bottom:80px; right:20px; background:var(--accent); color:#000; padding:10px 20px; border-radius:10px; font-weight:600; z-index:10000; opacity:0; transition:0.3s; font-size:14px;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    setTimeout(() => toast.style.opacity = '0', 2000);
+  }
+};
+
+// ==============================================
+// CONTINUE WATCHING SYSTEM
+// ==============================================
+const ContinueWatching = {
+  save(media, progressPercent, timestamp) {
+    if (!media || !media.id || progressPercent < 5) return;
+    let history = JSON.parse(localStorage.getItem('continueWatching') || '[]');
+    const existingIndex = history.findIndex(h => h.id === media.id);
+    const entry = {
+      id: media.id,
+      title: media.title || media.name,
+      poster_path: media.poster_path,
+      media_type: media.media_type || 'movie',
+      progress: Math.min(progressPercent, 94),
+      timestamp: timestamp || Date.now(),
+      vote_average: media.vote_average
+    };
+    if (existingIndex !== -1) {
+      history[existingIndex] = entry;
+    } else {
+      history.unshift(entry);
+    }
+    history = history.filter(h => h.progress < 95).slice(0, 20);
+    localStorage.setItem('continueWatching', JSON.stringify(history));
+    this.render();
+    updateSectionVisibility();
+  },
+  get() {
+    return JSON.parse(localStorage.getItem('continueWatching') || '[]');
+  },
+  render() {
+    const container = document.getElementById('continue-row');
+    if (!container) return;
+    const items = this.get();
+    if (items.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = '';
+    items.forEach(item => {
+      const mediaItem = {
+        id: item.id,
+        title: item.title,
+        name: item.title,
+        poster_path: item.poster_path,
+        vote_average: item.vote_average || 7,
+        media_type: item.media_type
+      };
+      const card = UI.createCard(mediaItem, item.media_type);
+      const progressBar = document.createElement('div');
+      progressBar.className = 'progress-bar';
+      progressBar.style.width = `${item.progress}%`;
+      card.style.position = 'relative';
+      card.appendChild(progressBar);
+      container.appendChild(card);
+    });
+  },
+  clearAll() {
+    if (confirm('Clear all continue watching history?')) {
+      localStorage.removeItem('continueWatching');
+      this.render();
+      updateSectionVisibility();
+    }
+  }
+};
+
+// ==============================================
+// MOST WATCHED SYSTEM
+// ==============================================
+const MostWatched = {
+  trackView(media) {
+    let stats = JSON.parse(localStorage.getItem('mostWatched') || '{"views":{},"total":0}');
+    const id = media.id;
+    if (!stats.views[id]) {
+      stats.views[id] = { id: media.id, title: media.title || media.name, poster: media.poster_path, type: media.media_type || 'movie', count: 0, rating: media.vote_average };
+    }
+    stats.views[id].count++;
+    stats.total++;
+    localStorage.setItem('mostWatched', JSON.stringify(stats));
+    this.render();
+    updateSectionVisibility();
+  },
+  get(limit = 15) {
+    const stats = JSON.parse(localStorage.getItem('mostWatched') || '{"views":{},"total":0}');
+    return Object.values(stats.views).sort((a, b) => b.count - a.count).slice(0, limit);
+  },
+  render() {
+    const container = document.getElementById('mostwatched-row');
+    if (!container) return;
+    const topItems = this.get();
+    if (topItems.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = '';
+    topItems.forEach(item => {
+      const fakeMedia = {
+        id: item.id,
+        title: item.title,
+        name: item.title,
+        poster_path: item.poster,
+        vote_average: item.rating || 7,
+        media_type: item.type
+      };
+      const card = UI.createCard(fakeMedia, item.type);
+      container.appendChild(card);
+    });
+  }
 };
 
 const API = {
@@ -394,19 +578,59 @@ const UI = {
     const tpl = document.getElementById(`${section === 'home' ? 'home' : (section === 'search' ? 'search' : 'grid')}-tpl`);
     this.app.innerHTML = ''; 
     this.app.appendChild(tpl.content.cloneNode(true));
-    if (section === 'home') App.initHome();
+    if (section === 'home') {
+      App.initHome();
+      setTimeout(() => {
+        Watchlist.render();
+        ContinueWatching.render();
+        MostWatched.render();
+        updateSectionVisibility();
+      }, 100);
+    }
     else if (section === 'movies') App.initGrid('movie', 'Movies');
     else if (section === 'tv') App.initGrid('tv', 'TV Shows');
     else if (section === 'trending') App.initGrid('movie', 'Trending', '/trending/movie/week');
     else if (section === 'anime') App.initAnime();
   },
   createCard(m, type = 'movie') {
-    const card = document.createElement('div'); card.className = 'card fade-in';
+    const card = document.createElement('div'); 
+    card.className = 'card fade-in';
     const title = m.title || m.name; 
     const year = (m.release_date || m.first_air_date || '').slice(0, 4); 
     const rating = m.vote_average ? m.vote_average.toFixed(1) : 'N/A';
-    card.innerHTML = `<img class="card-poster" src="${API.getImg(m.poster_path, 'w342')}" alt="${title}" loading="lazy"><div class="card-rating">⭐ ${rating}</div><div class="card-overlay"><div class="card-title">${title}</div><div class="card-year">${year}</div></div>`;
-    card.onclick = () => App.openMedia(m, type); 
+    const isInWatchlist = Watchlist.isInWatchlist(m.id);
+    
+    card.innerHTML = `
+      <img class="card-poster" src="${API.getImg(m.poster_path, 'w342')}" alt="${title}" loading="lazy">
+      <div class="card-rating">⭐ ${rating}</div>
+      <div class="card-overlay">
+        <div class="card-title">${title}</div>
+        <div class="card-year">${year}</div>
+        <button class="watchlist-btn ${isInWatchlist ? 'in-watchlist' : ''}" data-id="${m.id}">${isInWatchlist ? '✓ In Watchlist' : '+ Watchlist'}</button>
+      </div>
+    `;
+    
+    card.onclick = (e) => {
+      if (e.target.classList.contains('watchlist-btn')) return;
+      App.openMedia(m, type);
+    };
+    
+    const btn = card.querySelector('.watchlist-btn');
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      if (Watchlist.isInWatchlist(m.id)) {
+        Watchlist.remove(m.id);
+        btn.textContent = '+ Watchlist';
+        btn.classList.remove('in-watchlist');
+        btn.style.background = 'rgba(255,255,255,0.2)';
+      } else {
+        Watchlist.add({ id: m.id, title, poster_path: m.poster_path, media_type: type, vote_average: rating });
+        btn.textContent = '✓ In Watchlist';
+        btn.classList.add('in-watchlist');
+        btn.style.background = '#ff4444';
+      }
+    };
+    
     return card;
   },
   openPlayer(m, type, imdbId, tmdbId = null) {
@@ -417,9 +641,34 @@ const UI = {
     document.getElementById('pMeta').innerHTML = `<span>⭐ ${m.vote_average?.toFixed(1) || 'N/A'}</span><span>${year}</span><span style="text-transform:uppercase;">${type}</span>`;
     document.getElementById('pOverview').textContent = m.overview || 'No description available.';
     document.querySelectorAll('.src-btn').forEach((b,i) => b.classList.toggle('active', i === 0));
+    
+    // Setup player watchlist button
+    const playerBtn = document.getElementById('playerWatchlistBtn');
+    const isInWatchlist = Watchlist.isInWatchlist(m.id);
+    if (isInWatchlist) {
+      playerBtn.textContent = '✓ In Watchlist';
+      playerBtn.classList.add('in-watchlist');
+    } else {
+      playerBtn.textContent = '📋 + Watchlist';
+      playerBtn.classList.remove('in-watchlist');
+    }
+    playerBtn.onclick = () => {
+      if (Watchlist.isInWatchlist(m.id)) {
+        Watchlist.remove(m.id);
+        playerBtn.textContent = '📋 + Watchlist';
+        playerBtn.classList.remove('in-watchlist');
+      } else {
+        Watchlist.add({ id: m.id, title: m.title || m.name, poster_path: m.poster_path, media_type: type, vote_average: m.vote_average });
+        playerBtn.textContent = '✓ In Watchlist';
+        playerBtn.classList.add('in-watchlist');
+      }
+    };
+    
     this.setPlayerSrc('pulp');
     document.getElementById('playerModal').classList.add('open'); 
     document.body.style.overflow = 'hidden';
+    
+    MostWatched.trackView({ ...m, media_type: type });
   },
   async setPlayerSrc(source) {
     const m = State.currentMedia; 
@@ -443,13 +692,23 @@ const UI = {
       if (streamUrl) {
         iframe.src = streamUrl;
       } else {
-        iframe.src = `https://vaplayer.ru/embed/${type === 'tv' ? 'tv' : 'movie'}/${imdbId || tmdbId}?skin=vidzilla&color=ffa500`;
+        iframe.src = `https://vidsrc.to/embed/${type === 'tv' ? 'tv' : 'movie'}/${tmdbId}`;
       }
     } else if (source === 'vidapi') {
-      const t = type === 'tv' ? 'tv' : 'movie';
-      const id = imdbId || tmdbId;
-      iframe.src = `https://vaplayer.ru/embed/${t}/${id}?skin=vidzilla&color=ffa500`;
+      iframe.src = `https://vidsrc.to/embed/${type === 'tv' ? 'tv' : 'movie'}/${tmdbId}`;
     }
+    
+    let progressInterval = setInterval(() => {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        const video = iframeDoc?.querySelector('video');
+        if (video && video.duration) {
+          const percent = (video.currentTime / video.duration) * 100;
+          ContinueWatching.save(m, percent, Date.now());
+          if (percent > 95) clearInterval(progressInterval);
+        }
+      } catch(e) {}
+    }, 5000);
   },
   switchSource(source, el) {
     State.currentSource = source;
@@ -620,191 +879,6 @@ window.onclick = (e) => {
 document.addEventListener('keydown', (e) => { 
   if (e.key === 'Escape') UI.closePlayer(); 
 });
-
-// ==============================================
-// SURVEY SYSTEM - FULL SIZE
-// ==============================================
-(function() {
-  const WEBHOOK_URL = 'https://discord.com/api/webhooks/1514940789401059358/B-wps7EQ4ER3rlcEKV480jw6Wsj2_LsrM8ihsZYooYBTHuHhR4guaVBNNjdRJbkXhX3H';
-  
-  const QUESTIONS = [
-    { id: 'invite', type: 'invite', text: 'Would you like to help improve StreamDuck by taking a quick survey?', options: ['Yes, I\'ll help', 'No, maybe later'] },
-    { id: 'genres', type: 'multi', text: 'What genres do you watch most? (Select all that apply)', options: ['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance', 'Thriller', 'Fantasy', 'Documentary', 'Anime'] },
-    { id: 'preference', type: 'single', text: 'Do you prefer movies or TV shows?', options: ['Movies only', 'TV shows only', 'Both equally'] },
-    { id: 'discovery', type: 'single', text: 'How do you usually find new content?', options: ['Search', 'Trending section', 'Recommendations', 'Social media', 'Friends', 'Random roulette'] },
-    { id: 'rating', type: 'single', text: 'Rate StreamDuck overall (1-5 stars)', options: ['1 - Poor', '2 - Fair', '3 - Good', '4 - Very Good', '5 - Excellent'] },
-    { id: 'failRate', type: 'single', text: 'How often do video sources fail to play?', options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'] },
-    { id: 'featureRequest', type: 'text', text: 'What feature would you like to see most? (Be specific)', placeholder: 'e.g., Watchlist, Continue watching, Downloads, Comments, Dark mode, Mobile app...' },
-    { id: 'otherFeedback', type: 'textarea', text: 'Any other feedback or suggestions?', placeholder: 'Tell us what you think about StreamDuck...' }
-  ];
-  
-  let currentStep = 0;
-  let answers = {};
-  let surveyActive = false;
-  let surveyStarted = false;
-  
-  const overlay = document.getElementById('survey-overlay');
-  const surveyContent = document.getElementById('survey-content');
-  const closeBtn = document.getElementById('survey-close');
-  
-  window.showSurvey = function() {
-    if (surveyActive) return;
-    surveyActive = true;
-    currentStep = 0;
-    answers = {};
-    overlay.classList.add('active');
-    renderStep();
-  };
-  
-  window.hideSurvey = function() {
-    overlay.classList.remove('active');
-    surveyActive = false;
-    if (surveyStarted) localStorage.setItem('surveyTaken', 'true');
-  };
-  
-  function renderStep() {
-    const q = QUESTIONS[currentStep];
-    if (!q) {
-      sendToDiscord();
-      renderThanks();
-      return;
-    }
-    
-    let html = '';
-    const totalQuestions = QUESTIONS.filter(qq => qq.id !== 'invite').length;
-    const currentQNum = QUESTIONS.slice(0, currentStep + 1).filter(qq => qq.id !== 'invite').length;
-    const percent = totalQuestions > 0 ? (currentQNum / totalQuestions) * 100 : 0;
-    
-    html += `<div class="survey-progress">
-      <div class="survey-progress-bar"><div class="survey-progress-fill" style="width: ${percent}%;"></div></div>
-      <div class="survey-progress-text">Question ${currentQNum} of ${totalQuestions}</div>
-    </div>`;
-    
-    html += `<div class="survey-question"><div class="survey-question-text">${q.text}</div>`;
-    
-    if (q.type === 'invite') {
-      html += `<div class="survey-invite">
-        <p>Your feedback helps us improve StreamDuck with better features, more sources, and a smoother experience.</p>
-        <div class="survey-invite-buttons">
-          <button class="survey-btn survey-btn-primary" onclick="window.selectInvite(true)">✅ Yes, I'll help</button>
-          <button class="survey-btn survey-btn-secondary" onclick="window.selectInvite(false)">❌ No, maybe later</button>
-        </div>
-      </div>`;
-    }
-    else if (q.type === 'single') {
-      html += `<div class="survey-options">`;
-      q.options.forEach(opt => {
-        const isSelected = answers[q.id] === opt;
-        html += `<div class="survey-option ${isSelected ? 'selected' : ''}" onclick="window.selectOption('${q.id}', '${opt.replace(/'/g, "\\'")}')">
-          <div class="survey-option-radio"></div>
-          <div class="survey-option-text">${opt}</div>
-        </div>`;
-      });
-      html += `</div>`;
-    }
-    else if (q.type === 'multi') {
-      const selected = answers[q.id] || [];
-      html += `<div class="survey-options">`;
-      q.options.forEach(opt => {
-        const isSelected = selected.includes(opt);
-        html += `<div class="survey-option ${isSelected ? 'selected' : ''}" onclick="window.toggleMultiOption('${q.id}', '${opt.replace(/'/g, "\\'")}')">
-          <div class="survey-option-radio"></div>
-          <div class="survey-option-text">${opt}</div>
-        </div>`;
-      });
-      html += `</div>`;
-    }
-    else if (q.type === 'text') {
-      const val = answers[q.id] || '';
-      html += `<input type="text" class="survey-input" id="text-input-${q.id}" placeholder="${q.placeholder || 'Type your answer...'}" value="${val.replace(/"/g, '&quot;')}">`;
-    }
-    else if (q.type === 'textarea') {
-      const val = answers[q.id] || '';
-      html += `<textarea class="survey-textarea" id="text-input-${q.id}" rows="5" placeholder="${q.placeholder || 'Type your answer...'}">${val}</textarea>`;
-    }
-    
-    html += `</div>`;
-    
-    if (q.type !== 'invite') {
-      html += `<div class="survey-buttons">`;
-      if (currentStep > 0) html += `<button class="survey-btn survey-btn-secondary" onclick="window.prevStep()">← Back</button>`;
-      html += `<button class="survey-btn survey-btn-primary" onclick="window.nextStep()">${currentStep === QUESTIONS.length - 1 ? 'Submit →' : 'Next →'}</button>`;
-      html += `</div>`;
-    }
-    
-    surveyContent.innerHTML = html;
-  }
-  
-  window.selectInvite = function(accept) {
-    if (accept) { surveyStarted = true; currentStep++; renderStep(); } 
-    else { window.hideSurvey(); }
-  };
-  
-  window.selectOption = function(qId, value) { answers[qId] = value; renderStep(); };
-  
-  window.toggleMultiOption = function(qId, value) {
-    let selected = answers[qId] || [];
-    if (selected.includes(value)) selected = selected.filter(v => v !== value);
-    else selected.push(value);
-    answers[qId] = selected;
-    renderStep();
-  };
-  
-  window.nextStep = function() {
-    const q = QUESTIONS[currentStep];
-    if (q.type === 'text' || q.type === 'textarea') {
-      const input = document.getElementById(`text-input-${q.id}`);
-      if (input) answers[q.id] = input.value.trim() || '(not specified)';
-    }
-    if (q.type === 'single' && !answers[q.id]) return;
-    if (q.type === 'multi' && (!answers[q.id] || answers[q.id].length === 0)) return;
-    currentStep++;
-    renderStep();
-  };
-  
-  window.prevStep = function() { if (currentStep > 0) { currentStep--; renderStep(); } };
-  
-  function renderThanks() {
-    surveyContent.innerHTML = `
-      <div class="survey-thanks">
-        <div class="survey-thanks-icon">🎉</div>
-        <h4>Thank You!</h4>
-        <p style="color: var(--muted); margin-top: 8px;">Your feedback has been sent to the StreamDuck team.</p>
-        <button class="survey-btn survey-btn-primary" style="margin-top: 20px;" onclick="window.hideSurvey()">Close</button>
-      </div>
-    `;
-  }
-  
-  async function sendToDiscord() {
-    const embed = {
-      title: '📝 New StreamDuck Feedback',
-      color: 0xffa500,
-      timestamp: new Date().toISOString(),
-      fields: [],
-      footer: { text: `StreamDuck User • ${new Date().toLocaleString()}` }
-    };
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    embed.fields.push({ name: '📱 Device', value: isMobile ? 'Mobile/Tablet' : 'Desktop', inline: true });
-    if (answers.genres?.length) embed.fields.push({ name: '🎬 Genres', value: answers.genres.join(', '), inline: false });
-    if (answers.preference) embed.fields.push({ name: '📺 Preference', value: answers.preference, inline: true });
-    if (answers.discovery) embed.fields.push({ name: '🔍 Discovery', value: answers.discovery, inline: true });
-    if (answers.rating) embed.fields.push({ name: '⭐ Rating', value: answers.rating, inline: true });
-    if (answers.failRate) embed.fields.push({ name: '⚠️ Source Failure', value: answers.failRate, inline: true });
-    if (answers.featureRequest && answers.featureRequest !== '(not specified)') embed.fields.push({ name: '💡 Feature Request', value: answers.featureRequest.substring(0, 500), inline: false });
-    if (answers.otherFeedback && answers.otherFeedback !== '(not specified)') embed.fields.push({ name: '💬 Other Feedback', value: answers.otherFeedback.substring(0, 500), inline: false });
-    try { await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [embed] }) }); } catch(e) { console.error(e); }
-  }
-  
-  closeBtn.onclick = () => window.hideSurvey();
-  
-  setTimeout(() => { if (!localStorage.getItem('surveyTaken')) window.showSurvey(); }, 1500);
-  
-  const surveyBtn = document.createElement('button');
-  surveyBtn.innerHTML = '📋 Feedback';
-  surveyBtn.style.cssText = 'position:fixed; bottom:20px; left:20px; background:var(--accent); border:none; border-radius:50px; padding:12px 20px; color:#000; font-weight:bold; cursor:pointer; z-index:10002; font-family:inherit; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:14px;';
-  surveyBtn.onclick = () => window.showSurvey();
-  document.body.appendChild(surveyBtn);
-})();
 
 window.onload = () => Router.go('home');
 </script>
