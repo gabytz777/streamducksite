@@ -4,36 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>StreamDuck</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --surface2: #1a1a26;
-      --border: rgba(255, 255, 255, 0.07);
+      --bg: #06060a;
+      --surface: #0e0e14;
+      --surface2: #161622;
+      --border: rgba(255, 255, 255, 0.06);
       --accent: #ffa500;
       --accent-rgb: 255, 165, 0;
-      --text: #f0f0f0;
-      --muted: #888;
-      --radius: 12px;
-      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --text: #f5f5f7;
+      --muted: #7e7e8a;
+      --radius: 16px;
+      --transition: cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
     }
-    body.theme-movies { --accent: #e50914; --accent-rgb: 229, 9, 20; --bg: #050507; }
-    body.theme-tv { --accent: #3da9ff; --accent-rgb: 61, 169, 255; --bg: #05070f; }
-    body.theme-trending { --accent: #00ff7b; --accent-rgb: 0, 255, 123; --bg: #050a06; }
-    body.theme-anime { --accent: #ff69b4; --accent-rgb: 255, 105, 180; --bg: #140611; }
+
+    /* Core Page-Based Dynamic Accents */
+    body.mode-dynamic.theme-movies { --accent: #ff2a35; --accent-rgb: 255, 42, 53; --bg: #080203; --surface: #140708; }
+    body.mode-dynamic.theme-tv { --accent: #2ab0ff; --accent-rgb: 42, 176, 255; --bg: #020612; --surface: #070e22; }
+    body.mode-dynamic.theme-trending { --accent: #00ff88; --accent-rgb: 0, 255, 136; --bg: #020a05; --surface: #06160d; }
+    body.mode-dynamic.theme-anime { --accent: #ff52b4; --accent-rgb: 255, 82, 180; --bg: #0a0209; --surface: #160714; }
+
+    /* Static Premium Theme Overrides */
+    body.mode-dark {
+      --bg: #06060a; --surface: #0e0e14; --surface2: #161622; --text: #f5f5f7; --muted: #7e7e8a;
+      --border: rgba(255, 255, 255, 0.06); --accent: #ffa500; --accent-rgb: 255, 165, 0;
+    }
+    body.mode-amoled {
+      --bg: #000000; --surface: #0a0a0a; --surface2: #141414; --text: #ffffff; --muted: #666673;
+      --border: rgba(255, 255, 255, 0.08); --accent: #ffa500; --accent-rgb: 255, 165, 0;
+    }
+    body.mode-light {
+      --bg: #f4f5f9; --surface: #ffffff; --surface2: #f0f1f5; --text: #121217; --muted: #6b6b7b;
+      --border: rgba(0, 0, 0, 0.06); --accent: #ff5e00; --accent-rgb: 255, 94, 0;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; transition: background 0.5s ease; }
+    html, body { width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; transition: background var(--transition), color var(--transition); }
     button, .btn, .gtab, .nav-btn { appearance: none; -webkit-appearance: none; background: none; border: none; font-family: inherit; cursor: pointer; outline: none; user-select: none; }
-    .fade-in { animation: fadeIn 0.6s ease forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     .hidden-section { display: none; }
 
-    /* Hypastack Top Promo Banner */
+    /* Dynamic Promo Banner styling */
     .promo-banner {
-      background: linear-gradient(90deg, #13131f 0%, #0c0c12 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 8px 5%;
+      background: linear-gradient(90deg, var(--surface) 0%, var(--bg) 100%);
+      border-bottom: 1px solid rgba(var(--accent-rgb), 0.15);
+      padding: 10px 5%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -41,163 +58,198 @@
       width: 100%;
       position: relative;
       z-index: 1001;
+      transition: border-color var(--transition), background var(--transition);
     }
-    .promo-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
-    .promo-text {
-      display: flex;
-      flex-direction: column;
-    }
-    .promo-title {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .promo-subtitle {
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.5px;
-    }
-    .promo-btn {
-      margin-left: 8px;
-      background: #fff;
-      color: #000;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-decoration: none;
-      transition: var(--transition);
-      white-space: nowrap;
-    }
-    .promo-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-    }
+    .promo-icon { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; }
+    .promo-text { display: flex; flex-direction: column; }
+    .promo-title { font-size: 0.88rem; font-weight: 600; }
+    .promo-subtitle { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.5px; }
+    .promo-btn { margin-left: 8px; background: var(--text); color: var(--bg); padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none; transition: var(--transition); white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.15); }
+    .promo-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.35); }
 
     nav {
       position: sticky; top: 0; z-index: 1000;
-      background: rgba(10, 10, 15, 0.7);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border-bottom: 1px solid rgba(var(--accent-rgb), 0.18);
-      box-shadow: 0 1px 0 rgba(var(--accent-rgb), 0.08), 0 4px 24px rgba(0,0,0,0.35);
-      padding: 0 5%; display: flex; align-items: center; height: 70px; gap: 1.5rem; width: 100%;
-      transition: border-color 0.5s ease, box-shadow 0.5s ease;
+      background: rgba(var(--surface), 0.4);
+      backdrop-filter: blur(30px) saturate(200%);
+      -webkit-backdrop-filter: blur(30px) saturate(200%);
+      border-bottom: 1px solid rgba(var(--accent-rgb), 0.15);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+      padding: 0 5%; display: flex; align-items: center; height: 74px; gap: 1.5rem; width: 100%;
+      transition: border-color var(--transition);
     }
-    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: color 0.5s ease; }
+    .logo { font-size: 1.5rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; transition: color var(--transition); }
+    .logo:active { transform: scale(0.97); }
     .nav-links { display: flex; gap: 0.25rem; }
-    .nav-btn { color: var(--muted); font-size: 0.9rem; font-weight: 500; padding: 8px 12px; border-radius: 8px; transition: var(--transition); }
-    .nav-btn:hover, .nav-btn.active { color: var(--text); background: rgba(255,255,255,0.06); }
-    .nav-btn.active { color: var(--accent); }
+    .nav-btn { color: var(--muted); font-size: 0.92rem; font-weight: 500; padding: 8px 14px; border-radius: 10px; transition: var(--transition); }
+    .nav-btn:hover, .nav-btn.active { color: var(--text); background: rgba(255,255,255,0.05); }
+    body.mode-light .nav-btn:hover, body.mode-light .nav-btn.active { background: rgba(0,0,0,0.05); }
+    .nav-btn.active { color: var(--accent); font-weight: 600; }
+    
     .search-wrap { margin-left: auto; position: relative; max-width: 280px; width: 100%; }
-    #searchInput { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text); font-family: inherit; font-size: 0.85rem; padding: 10px 12px 10px 38px; border-radius: 10px; width: 100%; outline: none; transition: var(--transition); }
-    #searchInput:focus { border-color: var(--accent); background: rgba(255,255,255,0.09); }
-    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 0.9rem; }
-    .mobile-menu-btn { display: none; color: var(--text); font-size: 1.5rem; }
-    .btn { font-weight: 600; font-size: 0.9rem; padding: 10px 20px; border-radius: 10px; transition: var(--transition); display: flex; align-items: center; gap: 8px; justify-content: center; width: fit-content; }
-    .btn-primary { background: var(--accent); color: #000; }
-    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
-    .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(10px); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
-    #hero { position: relative; height: 65vh; min-height: 380px; overflow: hidden; display: flex; align-items: flex-end; width: 92%; margin: 1rem auto; border-radius: 20px; }
-    .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center 20%; transition: background-image 0.8s ease-in-out, transform 1.2s ease-out; transform: scale(1.05); }
+    #searchInput { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 0.88rem; padding: 11px 12px 11px 40px; border-radius: 12px; width: 100%; outline: none; transition: var(--transition); }
+    body.mode-light #searchInput { background: rgba(0,0,0,0.04); }
+    #searchInput:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.1); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 0.95rem; }
+    
+    .live-search-results { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; max-height: 400px; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 1100; backdrop-filter: blur(20px); }
+    .live-search-results.active { display: block; }
+    .live-search-item { display: flex; align-items: center; gap: 14px; padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: var(--transition); }
+    .live-search-item:hover { background: rgba(255,255,255,0.04); }
+    .live-search-item img { width: 38px; aspect-ratio: 2/3; object-fit: cover; border-radius: 6px; background: #222; }
+    .live-search-details { display: flex; flex-direction: column; min-width: 0; }
+    .live-search-name { font-size: 0.88rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .live-search-meta { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+    .mobile-menu-btn { display: none; color: var(--text); font-size: 1.3rem; padding: 5px; }
+    
+    .btn { font-weight: 600; font-size: 0.9rem; padding: 12px 24px; border-radius: 12px; transition: var(--transition); display: flex; align-items: center; gap: 8px; justify-content: center; width: fit-content; }
+    .btn-primary { background: var(--accent); color: #000; box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.25); }
+    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.4); }
+    .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); backdrop-filter: blur(10px); border: 1px solid var(--border); }
+    body.mode-light .btn-secondary { background: rgba(0,0,0,0.04); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+    
+    #hero { position: relative; height: 65vh; min-height: 400px; overflow: hidden; display: flex; align-items: flex-end; width: 92%; margin: 1.5rem auto; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+    .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center 20%; transition: background-image 0.8s ease-in-out, transform 1.2s ease-out; transform: scale(1.03); }
     #hero.active .hero-bg { transform: scale(1); }
-    .hero-fade { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 5%, rgba(10,10,15,0.4) 50%, transparent 100%), linear-gradient(to right, var(--bg) 0%, rgba(10,10,15,0.6) 45%, transparent 75%); }
-    .hero-content { position: relative; padding: 0 5% 2.5rem; max-width: 800px; z-index: 2; width: 100%; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #000; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 5px 10px; border-radius: 5px; margin-bottom: 0.8rem; }
-    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 7vw, 3.8rem); line-height: 0.95; margin-bottom: 0.8rem; }
-    .hero-meta { font-size: 0.95rem; color: #eee; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .hero-overview { font-size: 1rem; line-height: 1.6; color: #ddd; margin-bottom: 1.5rem; max-width: 550px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .hero-actions { display: flex; gap: 0.8rem; }
-    .hero-dots { position: absolute; bottom: 1.5rem; right: 5%; display: flex; gap: 8px; z-index: 10; }
-    .hdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: var(--transition); cursor: pointer; }
-    .hdot.active { background: var(--accent); width: 24px; border-radius: 3px; }
-    .shuffler-break { width: 92%; margin: 2.5rem auto; background: linear-gradient(90deg, var(--surface) 0%, var(--surface2) 100%); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; display: flex; align-items: center; gap: 3rem; position: relative; overflow: hidden; }
-    .shuffler-break::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.1), transparent 70%); pointer-events: none; }
+    .hero-fade { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 8%, rgba(0,0,0,0.2) 60%, transparent 100%), linear-gradient(to right, var(--bg) 0%, rgba(0,0,0,0.3) 50%, transparent 80%); }
+    .hero-content { position: relative; padding: 0 5% 3rem; max-width: 800px; z-index: 2; width: 100%; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); color: #fff; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; padding: 6px 12px; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; }
+    .hero-title { font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.8rem; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .hero-meta { font-size: 0.95rem; color: #eee; margin-bottom: 1.2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .hero-overview { font-size: 1.05rem; line-height: 1.6; color: #ddd; margin-bottom: 1.8rem; max-width: 580px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    .hero-actions { display: flex; gap: 1rem; }
+
+    .shuffler-break { width: 92%; margin: 3rem auto; background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem; display: flex; align-items: center; gap: 3rem; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+    .shuffler-break::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.12), transparent 65%); pointer-events: none; }
     .shuffler-text { flex: 1; z-index: 1; }
-    .shuffler-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; margin-bottom: 0.4rem; letter-spacing: 1px; }
-    .shuffler-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.2rem; }
+    .shuffler-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .shuffler-desc { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
     .shuffler-display { display: flex; align-items: center; gap: 2rem; z-index: 1; }
-    .shuffler-card-wrap { width: 120px; aspect-ratio: 2/3; position: relative; perspective: 1000px; flex-shrink: 0; }
-    .shuffler-card { width: 100%; height: 100%; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); overflow: hidden; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .shuffler-card img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease; }
+    .shuffler-card-wrap { width: 130px; aspect-ratio: 2/3; position: relative; perspective: 1000px; flex-shrink: 0; }
+    .shuffler-card { width: 100%; height: 100%; border-radius: 14px; background: var(--surface2); border: 1px solid var(--border); overflow: hidden; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+    .shuffler-card img { width: 100%; height: 100%; object-fit: cover; }
     .shuffler-card.spinning { animation: spinCard 0.8s infinite linear; }
     @keyframes spinCard { 0% { transform: rotateY(0deg) scale(0.9); } 50% { transform: rotateY(180deg) scale(0.8); } 100% { transform: rotateY(360deg) scale(0.9); } }
-    .shuffler-info { display: none; opacity: 0; transform: translateX(10px); transition: 0.4s ease; min-width: 200px; }
+    .shuffler-info { display: none; opacity: 0; transform: translateX(15px); transition: var(--transition); min-width: 220px; }
     .shuffler-info.visible { display: block; opacity: 1; transform: translateX(0); }
-    .shuffler-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .shuffler-name { font-weight: 700; font-size: 1.2rem; margin-bottom: 1.2rem; }
     .shuffler-btns { display: flex; gap: 10px; }
-    .section { padding: 2rem 5% 1rem; width: 100%; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; gap: 1rem; }
-    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 1px; }
-    .see-all { color: var(--accent); font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(var(--accent-rgb), 0.35); background: rgba(var(--accent-rgb), 0.08); transition: var(--transition); letter-spacing: 0.3px; }
-    .see-all:hover { background: rgba(var(--accent-rgb), 0.18); border-color: var(--accent); transform: translateX(2px); }
-    .scroll-row { display: flex; gap: 16px; overflow-x: auto; padding: 4px 0 16px; scrollbar-width: none; }
+
+    .section { padding: 2.5rem 5% 1rem; width: 100%; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; }
+    .section-title { font-size: 1.4rem; font-weight: 700; }
+    .see-all { color: var(--accent); font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(var(--accent-rgb), 0.3); background: rgba(var(--accent-rgb), 0.05); transition: var(--transition); }
+    .see-all:hover { background: rgba(var(--accent-rgb), 0.15); border-color: var(--accent); transform: translateX(3px); }
+    .scroll-row { display: flex; gap: 18px; overflow-x: auto; padding: 4px 0 18px; scrollbar-width: none; }
     .scroll-row::-webkit-scrollbar { display: none; }
-    .genre-tabs { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
-    .gtab { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; white-space: nowrap; padding: 8px 16px; border-radius: 100px; transition: var(--transition); }
-    .gtab:hover, .gtab.active { background: var(--accent); color: #000; font-weight: 600; border-color: var(--accent); }
-    .card { flex: 0 0 160px; width: 160px; position: relative; border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: var(--transition); background: var(--surface2); }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+    
+    .card { flex: 0 0 165px; width: 165px; position: relative; border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: var(--transition); background: var(--surface2); border: 1px solid var(--border); }
+    .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(var(--accent-rgb), 0.3); }
     .card-poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #222; }
-    .card-overlay { position: absolute; inset: 0; padding: 1rem; display: flex; flex-direction: column; justify-content: flex-end; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%); opacity: 0; transition: var(--transition); }
+    .card-overlay { position: absolute; inset: 0; padding: 1.2rem 1rem; display: flex; flex-direction: column; justify-content: flex-end; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 65%); opacity: 0; transition: var(--transition); }
     .card:hover .card-overlay { opacity: 1; }
-    .card-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-    .card-year { font-size: 0.8rem; color: var(--muted); }
-    .card-rating { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 3px 6px; border-radius: 5px; backdrop-filter: blur(4px); border: 1px solid rgba(var(--accent-rgb), 0.3); }
-    .watchlist-btn { margin-top: 8px; background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 5px 10px; font-size: 11px; cursor: pointer; color: #fff; font-weight: 600; transition: 0.2s; }
-    .watchlist-btn.in-watchlist { background: #ff4444; color: #fff; }
-    .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 0 0 0 var(--radius); }
-    .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; width: 100%; }
-    #playerModal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.96); backdrop-filter: blur(15px); padding: 20px; overflow-y: auto; }
-    #playerModal.open { display: block; animation: modalFade 0.3s ease; }
-    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
-    .modal-content { max-width: 1100px; margin: 0 auto; width: 100%; }
-    .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 1rem; flex-wrap: wrap; }
-    .player-actions { display: flex; gap: 10px; align-items: center; }
-    .close-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; }
-    .player-watchlist-btn { background: rgba(255,255,255,0.15); border: 1px solid var(--border); border-radius: 30px; padding: 8px 16px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; color: white; font-weight: 500; }
-    .player-watchlist-btn.in-watchlist { background: #ff4444; border-color: #ff4444; }
-    .iframe-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin-bottom: 25px; }
+    .card-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 2px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: #fff; }
+    .card-rating { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.75); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; backdrop-filter: blur(4px); border: 1px solid rgba(var(--accent-rgb), 0.25); }
+    .progress-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 0.3s; }
+    .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; width: 100%; }
+
+    /* Dashboard Layer */
+    .dashboard-overlay { display: none; position: fixed; inset: 0; z-index: 1500; background: var(--bg); overflow-y: auto; padding: 0 0 4rem 0; }
+    .dashboard-overlay.open { display: block; }
+    .dash-hero { position: relative; height: 52vh; display: flex; align-items: flex-end; padding: 2rem 5%; }
+    .dash-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(0.5); }
+    .dash-hero-fade { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg), transparent); }
+    .dash-back { position: absolute; top: 24px; left: 5%; z-index: 10; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); width: 46px; height: 46px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: var(--transition); backdrop-filter: blur(10px); }
+    .dash-back:hover { background: var(--accent); color: #000; transform: scale(1.05); }
+    .dash-header-content { position: relative; z-index: 2; display: flex; gap: 2.5rem; align-items: flex-end; width: 100%; }
+    .dash-poster { width: 180px; aspect-ratio: 2/3; object-fit: cover; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid var(--border); flex-shrink: 0; }
+    .dash-details h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.1; margin-bottom: 12px; color: var(--text); }
+    .dash-meta { display: flex; gap: 18px; color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; flex-wrap: wrap; }
+    .dash-body { padding: 3rem 5% 0; display: grid; grid-template-columns: 2fr 1fr; gap: 4rem; }
+    .dash-overview { font-size: 1.05rem; line-height: 1.75; color: var(--text); opacity: 0.85; margin-bottom: 2.5rem; }
+    
+    .cast-card { flex: 0 0 105px; width: 105px; text-align: center; }
+    .cast-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%; background: var(--surface2); margin-bottom: 10px; border: 1px solid var(--border); }
+    .cast-name { font-size: 0.82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+    .cast-char { font-size: 0.74rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .tv-controls { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem; }
+    .tv-controls h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem; }
+    .select-style { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; width: 100%; border-radius: 10px; outline: none; font-family: inherit; font-size: 0.92rem; margin-bottom: 1.5rem; }
+    .episode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 10px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+    .ep-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 14px 0; border-radius: 10px; font-size: 0.88rem; font-weight: 600; text-align: center; transition: var(--transition); }
+    .ep-btn:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+    .ep-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3); }
+
+    /* Settings Overlay & Tactile Toggles */
+    .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2100; backdrop-filter: blur(8px); justify-content: flex-end; }
+    .settings-overlay.open { display: flex; }
+    .settings-panel { background: rgba(var(--surface), 0.75); backdrop-filter: blur(40px); border-left: 1px solid var(--border); width: 100%; max-width: 360px; height: 100%; padding: 2.5rem 2rem; display: flex; flex-direction: column; animation: slideLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; box-shadow: -20px 0 50px rgba(0,0,0,0.6); position: relative; }
+    @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+    .settings-header h2 { font-size: 1.5rem; font-weight: 700; }
+    .settings-group { margin-bottom: 2.2rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 1.2rem; border-radius: 20px; position: relative; }
+    body.mode-light .settings-group { background: rgba(0,0,0,0.02); }
+    .settings-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 1.2rem; letter-spacing: 0.8px; }
+    
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { display: flex; flex-direction: column; gap: 2px; }
+    .toggle-title { font-size: 0.95rem; font-weight: 600; }
+    .toggle-desc { font-size: 0.78rem; color: var(--muted); }
+    
+    /* iOS Style Switch */
+    .switch { position: relative; display: inline-block; width: 46px; height: 26px; pointer-events: none; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: rgba(255,255,255,0.15); transition: .3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 34px; }
+    body.mode-light .slider { background-color: rgba(0,0,0,0.15); }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(20px); }
+    body.mode-light input:checked + .slider:before { background-color: #fff; }
+
+    /* Work In Progress Warning Interceptor Elements */
+    .wip-badge { display: inline-block; background: linear-gradient(135deg, #ffae00 0%, #ff6a00 100%); color: #000; font-weight: 800; font-size: 0.68rem; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; margin-left: 6px; letter-spacing: 0.5px; vertical-align: middle; box-shadow: 0 2px 8px rgba(255, 115, 0, 0.3); }
+    .wip-banner-overlay { display: none; position: absolute; inset: 0; background: rgba(10, 10, 14, 0.92); border-radius: 20px; backdrop-filter: blur(4px); flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1.5rem; z-index: 5; animation: fadeIn 0.3s ease; }
+    .wip-banner-overlay.active { display: flex; }
+    .wip-title { font-size: 1.2rem; font-weight: 700; color: #ffae00; margin-bottom: 4px; }
+    .wip-text { font-size: 0.8rem; color: #eee; margin-bottom: 12px; line-height: 1.3; }
+
+    /* Video Player Layer Modal */
+    #playerModal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); backdrop-filter: blur(20px); padding: 24px; overflow-y: auto; }
+    #playerModal.open { display: block; }
+
+    .modal-content { max-width: 1140px; margin: 0 auto; width: 100%; }
+    .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 1rem; }
+    .player-actions { display: flex; gap: 12px; align-items: center; }
+    .close-btn { background: rgba(255,255,255,0.08); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+    .close-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+    .iframe-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.7); margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05); }
     .iframe-container iframe { width: 100%; height: 100%; border: none; }
-    .p-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1; margin-bottom: 8px; }
-    .p-meta { display: flex; gap: 15px; color: var(--muted); margin-bottom: 15px; font-size: 0.9rem; flex-wrap: wrap; }
-    .p-overview { font-size: 1rem; line-height: 1.6; color: #ccc; max-width: 800px; }
-    .source-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .src-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: var(--transition); font-family: inherit; }
-    .src-btn:hover { border-color: rgba(var(--accent-rgb), 0.5); color: var(--text); }
+    .source-toggle { display: flex; gap: 8px; align-items: center; }
+    .src-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: var(--transition); }
     .src-btn.active { background: rgba(var(--accent-rgb), 0.15); border-color: var(--accent); color: var(--accent); }
-    footer { padding: 3rem 5%; text-align: center; border-top: 1px solid var(--border); margin-top: 3rem; color: var(--muted); font-size: 0.85rem; width: 100%; }
+
+    footer { padding: 4rem 5% 3rem; text-align: center; border-top: 1px solid var(--border); margin-top: 4rem; color: var(--muted); font-size: 0.88rem; width: 100%; letter-spacing: 0.3px; }
+    @media (max-width: 900px) {
+      .dash-body { grid-template-columns: 1fr; gap: 2.5rem; }
+      .dash-header-content { align-items: center; flex-direction: column; text-align: center; }
+      .dash-hero { height: auto; min-height: 42vh; padding-top: 5.5rem; }
+    }
     @media (max-width: 768px) {
-      .shuffler-break { flex-direction: column; gap: 1.5rem; text-align: center; width: 95%; padding: 1.5rem; }
-      .shuffler-display { flex-direction: column; gap: 1.5rem; }
-      .shuffler-info { transform: none; text-align: center; }
-      .shuffler-btns { justify-content: center; }
       .nav-links { display: none; }
-      .nav-links.mobile-open { display: flex; flex-direction: column; position: absolute; top: 70px; left: 0; right: 0; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); padding: 1rem; border-bottom: 1px solid rgba(var(--accent-rgb), 0.18); }
+      .nav-links.mobile-open { display: flex; flex-direction: column; position: absolute; top: 74px; left: 0; right: 0; background: var(--surface); border-bottom: 1px solid rgba(var(--accent-rgb), 0.15); padding: 1.2rem; gap: 8px; }
       .mobile-menu-btn { display: block; }
       .search-wrap { display: none; }
-      .search-wrap.active { display: block; position: absolute; top: 70px; left: 0; right: 0; background: rgba(10,10,15,0.95); padding: 10px 4%; z-index: 999; }
-      nav { height: 60px; justify-content: space-between; }
-      .hero-title { font-size: 2.8rem; }
-    }
-    @media (max-width: 480px) {
-      .promo-banner { gap: 8px; padding: 8px 12px; }
-      .promo-title { font-size: 0.8rem; }
-      .promo-subtitle { font-size: 0.68rem; }
-      .promo-btn { padding: 4px 10px; font-size: 0.72rem; }
+      .search-wrap.active { display: block; position: absolute; top: 74px; left: 0; right: 0; background: var(--surface); padding: 12px 5%; z-index: 999; border-bottom: 1px solid var(--border); }
+      nav { height: 64px; justify-content: space-between; }
     }
   </style>
 </head>
-<body class="theme-home">
+<body class="mode-dynamic theme-home">
 
-<!-- Hypastack Top Promo Banner Badge -->
-<div class="promo-banner">
+<div class="promo-banner" id="promoBanner">
   <img src="https://r2.hypastack.com/cdn/lvko6iovrtq7/footer.webp" alt="Hypastack Icon" class="promo-icon">
   <div class="promo-text">
     <span class="promo-title">Check out Hypastack!</span>
@@ -207,7 +259,7 @@
 </div>
 
 <nav>
-  <div class="logo" onclick="Router.go('home')">🦆 StreamDuck</div>
+  <div class="logo" id="duckLogo">🦆 StreamDuck</div>
   <div class="nav-links" id="navLinks">
     <button class="nav-btn" data-sec="home" onclick="Router.go('home')">Home</button>
     <button class="nav-btn" data-sec="movies" onclick="Router.go('movies')">Movies</button>
@@ -215,11 +267,15 @@
     <button class="nav-btn" data-sec="trending" onclick="Router.go('trending')">Trending</button>
     <button class="nav-btn" data-sec="anime" onclick="Router.go('anime')">Anime</button>
   </div>
+  
   <div class="search-wrap" id="searchWrap">
     <span class="search-icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Search movies or shows..." autocomplete="off">
+    <div class="live-search-results" id="liveSearchResults"></div>
   </div>
-  <div style="display: flex; gap: 10px;">
+  
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button class="nav-btn" onclick="AppSettings.toggleDrawer()" style="font-size: 1.2rem; padding: 6px 10px;">⚙️</button>
     <button class="mobile-menu-btn" onclick="UI.toggleSearch()">🔍</button>
     <button class="mobile-menu-btn" onclick="UI.toggleMobileMenu()">☰</button>
   </div>
@@ -227,36 +283,136 @@
 
 <main id="app"></main>
 
+<!-- Modern Settings Panel Overlay Drawer -->
+<div id="settingsOverlay" class="settings-overlay" onclick="AppSettings.closeDrawerOnOverlay(event)">
+  <div class="settings-panel">
+    <div class="settings-header">
+      <h2>App Settings</h2>
+      <button class="close-btn" style="color: var(--text);" onclick="AppSettings.toggleDrawer()">✕</button>
+    </div>
+    
+    <div class="settings-group">
+      <span class="settings-label">Color Engine</span>
+      
+      <div class="toggle-row" onclick="AppSettings.handleToggleClick('dynamic')">
+        <div class="toggle-info">
+          <span class="toggle-title">🌈 Dynamic Accents</span>
+          <span class="toggle-desc">Adapt app themes to match pages</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="chk-dynamic">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <!-- WIP Warning Banner for Light Mode Block -->
+      <div class="wip-banner-overlay" id="wipNoticeBlock">
+        <div class="wip-title">🚧 Work In Progress 🚧</div>
+        <div class="wip-text">The classic light mode design is currently under construction. Stick to the dark side for now!</div>
+        <button class="btn btn-primary" style="padding: 6px 16px; font-size:0.8rem;" onclick="AppSettings.closeWipNotice(event)">Got it</button>
+      </div>
+
+      <span class="settings-label">Static Layout Overrides</span>
+      
+      <div class="toggle-row" onclick="AppSettings.handleToggleClick('dark')">
+        <div class="toggle-info">
+          <span class="toggle-title">🌙 Cyber Dark</span>
+          <span class="toggle-desc">Sleek deep midnight layout</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="chk-dark">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row" onclick="AppSettings.handleToggleClick('amoled')">
+        <div class="toggle-info">
+          <span class="toggle-title">⬛ Pure AMOLED Black</span>
+          <span class="toggle-desc">Ultimate deep pitch blacks</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="chk-amoled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Classic Light Mode Switch triggers WIP block container -->
+      <div class="toggle-row" onclick="AppSettings.handleToggleClick('light')">
+        <div class="toggle-info">
+          <span class="toggle-title">☀️ Classic Light <span class="wip-badge">WIP</span></span>
+          <span class="toggle-desc">Bright, crisp aesthetics</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="chk-light">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dashboardOverlay" class="dashboard-overlay">
+  <button class="dash-back" onclick="UI.closeDashboard()">←</button>
+  <div class="dash-hero">
+    <div class="dash-hero-bg" id="dashHeroBg"></div>
+    <div class="dash-hero-fade"></div>
+    <div class="dash-header-content">
+      <img class="dash-poster" id="dashPoster" src="" alt="Poster">
+      <div class="dash-details">
+        <h1 id="dashTitle">Loading Media...</h1>
+        <div class="dash-meta" id="dashMeta"></div>
+        <div style="display: flex; gap: 12px; margin-top: 15px;" id="dashPrimaryActions"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dash-body">
+    <div>
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem;">Synopsis</h2>
+      <p class="dash-overview" id="dashOverview"></p>
+      
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem;">Main Cast Members</h2>
+      <div class="scroll-row" id="dashCastRow" style="margin-bottom: 2.5rem;"></div>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem;">More Like This</h2>
+      <div class="scroll-row" id="dashRecommendationsRow"></div>
+    </div>
+    
+    <div id="tvSelectorSection" class="hidden-section">
+      <div class="tv-controls">
+        <h3>Select Season & Episode</h3>
+        <select id="seasonDropdown" class="select-style" onchange="App.handleSeasonChange(this.value)"></select>
+        <div class="episode-grid" id="episodeGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <template id="home-tpl">
   <div id="hero" class="fade-in">
     <div class="hero-bg" id="heroBg"></div>
     <div class="hero-fade"></div>
     <div class="hero-content">
-      <div class="hero-badge">✨ Featured</div>
+      <div class="hero-badge">✨ Featured Blockbuster</div>
       <h1 class="hero-title" id="heroTitle">Loading...</h1>
       <div class="hero-meta" id="heroMeta"></div>
       <p class="hero-overview" id="heroOverview"></p>
       <div class="hero-actions">
-        <button class="btn btn-primary" id="heroPlayBtn">▶ Watch Now</button>
-        <button class="btn btn-secondary" id="heroInfoBtn">More Info</button>
+        <button class="btn btn-primary" id="heroPlayBtn">▶ Play Media</button>
+        <button class="btn btn-secondary" id="heroInfoBtn">ℹ️ More Info</button>
       </div>
     </div>
-    <div class="hero-dots" id="heroDots"></div>
   </div>
 
   <div id="continue-section" class="section fade-in hidden-section">
-    <div class="section-header">
-      <h2 class="section-title">⏯️ Continue Watching</h2>
-      <a class="see-all" onclick="ContinueWatching.clearAll()">Clear All</a>
-    </div>
+    <div class="section-header"><h2 class="section-title">⏯️ Continue Watching</h2><a class="see-all" onclick="ContinueWatching.clearAll()">Clear All</a></div>
     <div class="scroll-row" id="continue-row"></div>
   </div>
 
   <div id="watchlist-section" class="section fade-in hidden-section">
-    <div class="section-header">
-      <h2 class="section-title">📌 My Watchlist</h2>
-      <a class="see-all" onclick="Watchlist.render()">Refresh</a>
-    </div>
+    <div class="section-header"><h2 class="section-title">📌 My Watchlist</h2><a class="see-all" onclick="Watchlist.render()">Refresh</a></div>
     <div class="scroll-row" id="watchlist-row"></div>
   </div>
 
@@ -278,7 +434,7 @@
       <div class="shuffler-info" id="shuffleInfo">
         <div class="shuffler-name" id="shuffleName">???</div>
         <div class="shuffler-btns">
-          <button class="btn btn-primary" id="shufflePlayBtn">▶ Play</button>
+          <button class="btn btn-primary" id="shufflePlayBtn">ℹ️ Details</button>
           <button class="btn btn-secondary" onclick="App.shuffle()" style="padding: 10px; width: 44px;">🔄</button>
         </div>
       </div>
@@ -298,35 +454,28 @@
 
 <template id="grid-tpl">
   <div class="section fade-in">
-    <h1 id="gridTitle" class="section-title" style="font-size: 2.2rem; margin-bottom: 1rem;"></h1>
+    <h1 id="gridTitle" class="section-title" style="font-size: 2rem; margin-bottom: 1rem;"></h1>
     <div class="movie-grid" id="movieGrid"></div>
-  </div>
-</template>
-
-<template id="search-tpl">
-  <div class="section fade-in">
-    <h1 id="searchTitle" class="section-title" style="margin-bottom: 1.5rem;"></h1>
-    <div class="movie-grid" id="searchGrid"></div>
   </div>
 </template>
 
 <div id="playerModal">
   <div class="modal-content">
     <div class="player-header">
-      <div style="flex: 1;">
-        <h2 class="p-title" id="pTitle"></h2>
-        <div class="p-meta" id="pMeta"></div>
+      <div>
+        <h2 class="p-title" id="pTitle" style="font-size: 1.5rem; font-weight: 700; color: #fff;"></h2>
+        <div class="source-toggle">
+          <button class="src-btn active" onclick="UI.switchSource('pulp', this)">Source 1</button>
+          <button class="src-btn" onclick="UI.switchSource('vidapi', this)">Source 2</button>
+          <span style="color: #aaa; font-size: 0.8rem; margin-left: 10px;" id="playerEpisodeIndicator"></span>
+        </div>
       </div>
       <div class="player-actions">
-        <button class="player-watchlist-btn" id="playerWatchlistBtn">📋 + Watchlist</button>
+        <button class="btn btn-secondary" id="playerNextEpBtn" style="display:none; padding: 8px 14px; font-size: 0.8rem;">⏭️ Next Episode</button>
         <button class="close-btn" onclick="UI.closePlayer()">✕</button>
       </div>
     </div>
-    <div class="source-toggle">
-      <button class="src-btn active" onclick="UI.switchSource('pulp', this)">Source 1</button>
-      <button class="src-btn" onclick="UI.switchSource('vidapi', this)">Source 2</button>
-    </div>
-    <div class="iframe-container"><iframe id="playerIframe" allowfullscreen allow="autoplay; encrypted-media" referrerpolicy="no-referrer"></iframe></div>
+    <div class="iframe-container"><iframe id="playerIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>
   </div>
 </div>
 
@@ -335,13 +484,91 @@
 </footer>
 
 <script>
-  // Dynamic API configuration with your embedded v3 key
   const TMDB_API_KEY = "a31a9bbd61ad9d66f465457558a2d397"; 
   const TMDB_BASE_URL = "https://api.themoviedb.org/3";
   const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
   const TMDB_BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
   
-  // Storage Engines
+  const AppSettings = {
+    themeMode: localStorage.getItem('duck_theme_mode') || 'dynamic',
+    
+    init() {
+      this.applyThemeStyles();
+    },
+    toggleDrawer() {
+      document.getElementById('settingsOverlay').classList.toggle('open');
+    },
+    closeDrawerOnOverlay(e) {
+      if(e.target.id === 'settingsOverlay') this.toggleDrawer();
+    },
+    handleToggleClick(mode) {
+      if (mode === 'light') {
+        // Blocks transition and exposes WIP Shield interface modal
+        document.getElementById('wipNoticeBlock').classList.add('active');
+        return;
+      }
+      this.themeMode = mode;
+      localStorage.setItem('duck_theme_mode', mode);
+      this.applyThemeStyles();
+    },
+    closeWipNotice(e) {
+      e.stopPropagation();
+      document.getElementById('wipNoticeBlock').classList.remove('active');
+    },
+    applyThemeStyles() {
+      document.body.classList.remove('mode-dynamic', 'mode-dark', 'mode-amoled', 'mode-light');
+      document.body.classList.add(`mode-${this.themeMode}`);
+      
+      ['dynamic', 'dark', 'amoled', 'light'].forEach(m => {
+        const input = document.getElementById(`chk-${m}`);
+        if(input) input.checked = (this.themeMode === m);
+      });
+    }
+  };
+
+  // Easter Egg Soundbite engine
+  const EasterEgg = {
+    clickCount: 0,
+    lastClickTime: 0,
+    audioUrl: 'https://www.myinstants.com/media/sounds/6777777777.mp3',
+    audioInstance: null,
+
+    init() {
+      const logo = document.getElementById('duckLogo');
+      if (!logo) return;
+      
+      logo.addEventListener('click', () => {
+        const currentTime = Date.now();
+        if (currentTime - this.lastClickTime > 1500) {
+          this.clickCount = 0;
+        }
+        
+        this.clickCount++;
+        this.lastClickTime = currentTime;
+        
+        // Dynamic structural visual pop
+        logo.style.transform = 'scale(1.1) rotate(-3deg)';
+        logo.style.transition = 'transform 0.1s ease';
+        setTimeout(() => { logo.style.transform = ''; logo.style.transition = 'var(--transition)'; }, 100);
+
+        if (this.clickCount === 7) {
+          this.playSecretSound();
+          this.clickCount = 0;
+        }
+      });
+    },
+
+    playSecretSound() {
+      if (this.audioInstance) {
+        this.audioInstance.pause();
+        this.audioInstance.currentTime = 0;
+      }
+      this.audioInstance = new Audio(this.audioUrl);
+      this.audioInstance.volume = 1.0;
+      this.audioInstance.play().catch(err => console.log("Sandbox playback exception auto-safeguard: ", err));
+    }
+  };
+
   const Watchlist = {
     items: JSON.parse(localStorage.getItem('duck_watchlist')) || [],
     toggle(item) {
@@ -350,7 +577,7 @@
       else this.items.push(item);
       localStorage.setItem('duck_watchlist', JSON.stringify(this.items));
       this.render();
-      UI.updatePlayerWatchlistBtn(item.id);
+      UI.updateDashboardWatchlistBtn(item.id);
     },
     has(id) { return this.items.some(i => i.id === id); },
     render() {
@@ -365,19 +592,14 @@
 
   const ContinueWatching = {
     items: JSON.parse(localStorage.getItem('duck_continue')) || [],
-    save(item, progress = 0) {
+    save(item, progress = 40) {
       const index = this.items.findIndex(i => i.id === item.id);
-      const data = { ...item, progress };
       if (index > -1) this.items.splice(index, 1);
-      this.items.unshift(data);
+      this.items.unshift({ ...item, progress });
       localStorage.setItem('duck_continue', JSON.stringify(this.items));
       this.render();
     },
-    clearAll() {
-      this.items = [];
-      localStorage.removeItem('duck_continue');
-      this.render();
-    },
+    clearAll() { this.items = []; localStorage.removeItem('duck_continue'); this.render(); },
     render() {
       const row = document.getElementById('continue-row');
       const sec = document.getElementById('continue-section');
@@ -388,225 +610,285 @@
     }
   };
 
-  // Router Core
   const Router = {
     current: 'home',
     go(route) {
       this.current = route;
-      document.body.className = `theme-${route}`;
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-sec') === route);
-      });
+      
+      const activeRoute = document.body.className.split(' ').find(c => c.startsWith('theme-'));
+      if(activeRoute) document.body.classList.remove(activeRoute);
+      document.body.classList.add(`theme-${route}`);
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-sec') === route));
       const app = document.getElementById('app');
-      const tplId = (route === 'home') ? 'home-tpl' : 'grid-tpl';
-      const template = document.getElementById(tplId);
-      if(template) {
-        app.innerHTML = template.innerHTML;
-        App.initSection(route);
-      }
+      const template = document.getElementById((route === 'home') ? 'home-tpl' : 'grid-tpl');
+      if(template) { app.innerHTML = template.innerHTML; App.initSection(route); }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  // Main API Data Fetching App Engine
   const App = {
     shufflePool: [],
-    currentPlayerItem: null,
+    currentMedia: null,
     currentSource: 'pulp',
-    
+    activeSeason: 1,
+    activeEpisode: 1,
+    totalEpisodesInActiveSeason: 1,
+    totalSeasons: 1,
+
     async tmdbFetch(endpoint, queryParams = "") {
       try {
         const response = await fetch(`${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&language=en-US${queryParams}`);
         return await response.json();
-      } catch (err) {
-        console.error("API Fetch Failure: ", err);
-      }
+      } catch (err) { console.error(err); }
     },
 
     async init() {
+      AppSettings.init();
+      EasterEgg.init();
       Router.go('home');
-      document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+      
+      const inputEl = document.getElementById('searchInput');
+      inputEl.addEventListener('input', (e) => this.handleLiveSearch(e.target.value));
+      
+      document.addEventListener('click', (e) => {
+        if(!document.getElementById('searchWrap').contains(e.target)) {
+          document.getElementById('liveSearchResults').classList.remove('active');
+        }
+      });
     },
 
     async initSection(section) {
       if (section === 'home') {
         Watchlist.render();
         ContinueWatching.render();
-        
-        // Fetch trending content to build out hero spotlight banner
         const trendingData = await this.tmdbFetch('/trending/all/day');
         if (trendingData && trendingData.results.length > 0) {
           this.shufflePool = trendingData.results;
-          const heroItem = trendingData.results[0];
-          this.renderHero(heroItem);
-          
-          const trendRow = document.getElementById('trendingRow');
-          if (trendRow) trendRow.innerHTML = trendingData.results.map(i => UI.createCardMarkup(i)).join('');
+          this.renderHero(trendingData.results[0]);
+          document.getElementById('trendingRow').innerHTML = trendingData.results.map(i => UI.createCardMarkup(i)).join('');
         }
-
-        // Populate sections dynamically
         const movieData = await this.tmdbFetch('/movie/popular');
-        if(movieData && document.getElementById('topRatedRow')) {
-          document.getElementById('topRatedRow').innerHTML = movieData.results.map(i => ({...i, media_type:'movie'})).map(i => UI.createCardMarkup(i)).join('');
-        }
-
+        if(movieData) document.getElementById('topRatedRow').innerHTML = movieData.results.map(i => ({...i, media_type:'movie'})).map(i => UI.createCardMarkup(i)).join('');
         const tvData = await this.tmdbFetch('/tv/popular');
-        if(tvData && document.getElementById('tvRow')) {
-          document.getElementById('tvRow').innerHTML = tvData.results.map(i => ({...i, media_type:'tv'})).map(i => UI.createCardMarkup(i)).join('');
-        }
+        if(tvData) document.getElementById('tvRow').innerHTML = tvData.results.map(i => ({...i, media_type:'tv'})).map(i => UI.createCardMarkup(i)).join('');
       } else {
-        const titleEl = document.getElementById('gridTitle');
-        if (titleEl) titleEl.innerText = section.toUpperCase();
+        document.getElementById('gridTitle').innerText = section.toUpperCase();
         this.populateGridRows(section);
       }
     },
 
     renderHero(item) {
       const title = item.title || item.name;
-      const release = item.release_date || item.first_air_date || 'N/A';
       const bg = document.getElementById('heroBg');
-      
-      if (bg) {
-        bg.style.backgroundImage = item.backdrop_path 
-          ? `url('${TMDB_BACKDROP_BASE}${item.backdrop_path}')` 
-          : `url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200')`;
-      }
-      
+      if (bg) bg.style.backgroundImage = `url('${TMDB_BACKDROP_BASE}${item.backdrop_path}')`;
       document.getElementById('heroTitle').innerText = title;
-      document.getElementById('heroOverview').innerText = item.overview || "No overview available.";
-      document.getElementById('heroMeta').innerHTML = `<span>⭐ ${item.vote_average || 0}</span> | <span>${release}</span>`;
+      document.getElementById('heroOverview').innerText = item.overview || "";
+      document.getElementById('heroMeta').innerHTML = `<span>⭐ ${Number(item.vote_average).toFixed(1)}</span> | <span>${item.release_date || item.first_air_date || ''}</span>`;
       
-      const parsedItem = { ...item, media_type: item.media_type || (item.title ? 'movie' : 'tv') };
-      document.getElementById('heroPlayBtn').onclick = () => UI.openPlayer(parsedItem);
-      document.getElementById('heroInfoBtn').onclick = () => UI.openPlayer(parsedItem);
+      const normalized = { ...item, media_type: item.media_type || (item.title ? 'movie' : 'tv') };
+      document.getElementById('heroPlayBtn').onclick = () => UI.openDashboard(normalized, true);
+      document.getElementById('heroInfoBtn').onclick = () => UI.openDashboard(normalized);
     },
 
     async populateGridRows(type) {
-      const grid = document.getElementById('movieGrid');
-      if (!grid) return;
-      
-      let endpoint = '/movie/popular';
-      if (type === 'tv') endpoint = '/tv/popular';
-      if (type === 'trending') endpoint = '/trending/all/week';
-      if (type === 'anime') endpoint = '/discover/tv', query = "&with_genres=16&with_keywords=210024"; 
-      
-      const data = await this.tmdbFetch(endpoint);
+      let endpoint = type === 'tv' ? '/tv/popular' : type === 'trending' ? '/trending/all/week' : type === 'anime' ? '/discover/tv' : '/movie/popular';
+      let params = type === 'anime' ? '&with_genres=16&with_keywords=210024' : '';
+      const data = await this.tmdbFetch(endpoint, params);
       if(data && data.results) {
-        grid.innerHTML = data.results.map(i => ({...i, media_type: i.media_type || (type==='tv'?'tv':'movie')})).map(item => UI.createCardMarkup(item)).join('');
+        document.getElementById('movieGrid').innerHTML = data.results.map(i => ({...i, media_type: i.media_type || (type==='tv'||type==='anime'?'tv':'movie')})).map(item => UI.createCardMarkup(item)).join('');
       }
     },
 
     shuffle() {
       const card = document.getElementById('shuffleCard');
-      const info = document.getElementById('shuffleInfo');
-      const btn = document.getElementById('shuffleInitBtn');
-      
-      if(btn) btn.style.display = 'none';
       if(card) card.classList.add('spinning');
-      
       setTimeout(() => {
         if(card) card.classList.remove('spinning');
-        const pool = this.shufflePool.length ? this.shufflePool : Watchlist.items;
-        if(!pool.length) return;
-        
-        const randomItem = pool[Math.floor(Math.random() * pool.length)];
-        const imgEl = document.getElementById('shuffleImg');
-        if(imgEl && randomItem.poster_path) imgEl.src = `${TMDB_IMAGE_BASE}${randomItem.poster_path}`;
-        
+        const randomItem = this.shufflePool[Math.floor(Math.random() * this.shufflePool.length)];
+        document.getElementById('shuffleImg').src = `${TMDB_IMAGE_BASE}${randomItem.poster_path}`;
         document.getElementById('shuffleName').innerText = randomItem.title || randomItem.name;
-        if(info) info.classList.add('visible');
-        
-        const parsedItem = { ...randomItem, media_type: randomItem.media_type || (randomItem.title ? 'movie' : 'tv') };
-        document.getElementById('shufflePlayBtn').onclick = () => UI.openPlayer(parsedItem);
-      }, 900);
+        document.getElementById('shuffleInfo').classList.add('visible');
+        const normalized = { ...randomItem, media_type: randomItem.media_type || (randomItem.title ? 'movie' : 'tv') };
+        document.getElementById('shufflePlayBtn').onclick = () => UI.openDashboard(normalized);
+      }, 800);
     },
 
-    async handleSearch(query) {
-      if (!query.trim()) {
-        if (Router.current === 'search') Router.go('home');
-        return;
-      }
+    async handleLiveSearch(query) {
+      const drawer = document.getElementById('liveSearchResults');
+      if (!query.trim()) { drawer.classList.remove('active'); return; }
       
-      if (Router.current !== 'search') {
-        const app = document.getElementById('app');
-        const template = document.getElementById('search-tpl');
-        if(template) { app.innerHTML = template.innerHTML; Router.current = 'search'; }
-      }
-      
-      document.getElementById('searchTitle').innerText = `Search results for: "${query}"`;
       const data = await this.tmdbFetch('/search/multi', `&query=${encodeURIComponent(query)}`);
+      if(data && data.results) {
+        const filtered = data.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv').slice(0, 6);
+        if(filtered.length === 0) { drawer.classList.remove('active'); return; }
+        
+        drawer.innerHTML = filtered.map(item => {
+          const name = item.title || item.name;
+          const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
+          const poster = item.poster_path ? `${TMDB_IMAGE_BASE}${item.poster_path}` : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=100';
+          const normalizedStr = JSON.stringify({
+            id: item.id, title: name, poster_path: item.poster_path, 
+            vote_average: item.vote_average, media_type: item.media_type, 
+            release_date: item.release_date || item.first_air_date, backdrop_path: item.backdrop_path
+          }).replace(/"/g, '&quot;');
+          
+          return `
+            <div class="live-search-item" onclick="document.getElementById('liveSearchResults').classList.remove('active'); UI.openDashboard(${normalizedStr})">
+              <img src="${poster}" alt="Poster">
+              <div class="live-search-details">
+                <span class="live-search-name">${name}</span>
+                <span class="live-search-meta">${item.media_type.toUpperCase()} • ${year} • ⭐ ${Number(item.vote_average || 0).toFixed(1)}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        drawer.classList.add('active');
+      }
+    },
+
+    async loadTVDetails(id) {
+      const data = await this.tmdbFetch(`/tv/${id}`);
+      if (!data) return;
+      this.totalSeasons = data.number_of_seasons;
+      const dropdown = document.getElementById('seasonDropdown');
+      dropdown.innerHTML = Array.from({length: data.number_of_seasons}, (_, i) => `<option value="${i+1}">Season ${i+1}</option>`).join('');
+      this.handleSeasonChange(1);
+    },
+
+    async handleSeasonChange(seasonNum) {
+      this.activeSeason = parseInt(seasonNum);
+      const data = await this.tmdbFetch(`/tv/${this.currentMedia.id}/season/${seasonNum}`);
+      if (!data || !data.episodes) return;
+      this.totalEpisodesInActiveSeason = data.episodes.length;
       
-      const grid = document.getElementById('searchGrid');
-      if(grid && data && data.results) {
-        const filtered = data.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv');
-        grid.innerHTML = filtered.length 
-          ? filtered.map(item => UI.createCardMarkup(item)).join('')
-          : `<p style="grid-column: 1/-1; text-align:center; color:var(--muted); padding:3rem 0;">No active stream channels found matching that query.</p>`;
+      const grid = document.getElementById('episodeGrid');
+      grid.innerHTML = data.episodes.map(ep => `
+        <button class="ep-btn ${this.activeEpisode === ep.episode_number ? 'active' : ''}" data-ep="${ep.episode_number}" onclick="App.playTVEpisode(${ep.episode_number})">
+          ${ep.episode_number}
+        </button>
+      `).join('');
+    },
+
+    playTVEpisode(epNum) {
+      this.activeEpisode = parseInt(epNum);
+      document.querySelectorAll('.ep-btn').forEach(btn => btn.classList.toggle('active', parseInt(btn.getAttribute('data-ep')) === epNum));
+      UI.openPlayer();
+    },
+
+    nextEpisode() {
+      if (this.activeEpisode < this.totalEpisodesInActiveSeason) {
+        this.playTVEpisode(this.activeEpisode + 1);
+      } else if (this.activeSeason < this.totalSeasons) {
+        this.activeEpisode = 1;
+        document.getElementById('seasonDropdown').value = this.activeSeason + 1;
+        this.handleSeasonChange(this.activeSeason + 1).then(() => {
+          this.playTVEpisode(1);
+        });
       }
     }
   };
 
-  // Graphical Render Layer
   const UI = {
-    toggleMobileMenu() {
-      const links = document.getElementById('navLinks');
-      if(links) links.classList.toggle('mobile-open');
-    },
-
-    toggleSearch() {
-      const wrap = document.getElementById('searchWrap');
-      if(wrap) wrap.classList.toggle('active');
-    },
+    toggleMobileMenu() { document.getElementById('navLinks').classList.toggle('mobile-open'); },
+    toggleSearch() { document.getElementById('searchWrap').classList.toggle('active'); },
 
     createCardMarkup(item, includeProgress = false) {
       const title = item.title || item.name;
-      const date = item.release_date || item.first_air_date || '';
-      const year = date ? date.split('-')[0] : '';
-      const poster = item.poster_path ? `${TMDB_IMAGE_BASE}${item.poster_path}` : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=350';
       const rating = item.vote_average ? Number(item.vote_average).toFixed(1) : 'NR';
-      
-      const normalizedItem = {
-        id: item.id, title: title, release_date: date,
-        vote_average: rating, poster_path: item.poster_path,
-        media_type: item.media_type || (item.title ? 'movie' : 'tv')
-      };
-
+      const normalized = { id: item.id, title: title, poster_path: item.poster_path, vote_average: rating, media_type: item.media_type || (item.title ? 'movie' : 'tv'), release_date: item.release_date || item.first_air_date || '', backdrop_path: item.backdrop_path };
       return `
-        <div class="card" onclick="UI.openPlayer(${JSON.stringify(normalizedItem).replace(/"/g, '&quot;')})">
-          <img class="card-poster" src="${poster}" alt="${title}" loading="lazy">
+        <div class="card" onclick="UI.openDashboard(${JSON.stringify(normalized).replace(/"/g, '&quot;')})">
+          <img class="card-poster" src="${item.poster_path ? TMDB_IMAGE_BASE+item.poster_path : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=350'}" alt="${title}" loading="lazy">
           <div class="card-rating">⭐ ${rating}</div>
-          <div class="card-overlay">
-            <div class="card-title">${title}</div>
-            <div class="card-year">${year}</div>
-          </div>
+          <div class="card-overlay"><div class="card-title">${title}</div></div>
           ${includeProgress ? `<div class="progress-bar" style="width: ${item.progress || 40}%"></div>` : ''}
         </div>
       `;
     },
 
-    openPlayer(item) {
-      App.currentPlayerItem = item;
-      const modal = document.getElementById('playerModal');
+    async openDashboard(item, autoPlayDirectly = false) {
+      App.currentMedia = item;
+      App.activeSeason = 1;
+      App.activeEpisode = 1;
+
+      document.getElementById('dashTitle').innerText = item.title;
+      document.getElementById('dashPoster').src = item.poster_path ? TMDB_IMAGE_BASE + item.poster_path : '';
+      document.getElementById('dashHeroBg').style.backgroundImage = `url('${TMDB_BACKDROP_BASE}${item.backdrop_path || item.poster_path}')`;
       
+      const type = item.media_type === 'tv' ? 'tv' : 'movie';
+      const details = await App.tmdbFetch(`/${type}/${item.id}`);
+      
+      document.getElementById('dashMeta').innerHTML = `
+        <span>⭐ ${Number(item.vote_average || 0).toFixed(1)}</span> • 
+        <span>${item.release_date ? item.release_date.split('-')[0] : 'N/A'}</span> • 
+        <span>${details?.runtime ? details.runtime + 'm' : type.toUpperCase()}</span>
+      `;
+      document.getElementById('dashOverview').innerText = details?.overview || "No synopsis available.";
+
+      document.getElementById('dashPrimaryActions').innerHTML = `
+        <button class="btn btn-primary" onclick="${type === 'tv' ? 'App.playTVEpisode(1)' : 'UI.openPlayer()'}">▶ Watch Stream</button>
+        <button class="btn btn-secondary" onclick="UI.openTrailerInNewTab()">🎬 View Trailer</button>
+        <button class="btn btn-secondary" id="dashWatchlistBtn" style="padding:10px 14px;">📋 + Watchlist</button>
+      `;
+      document.getElementById('dashWatchlistBtn').onclick = () => Watchlist.toggle(App.currentMedia);
+      this.updateDashboardWatchlistBtn(item.id);
+
+      if (type === 'tv') {
+        document.getElementById('tvSelectorSection').classList.remove('hidden-section');
+        await App.loadTVDetails(item.id);
+      } else {
+        document.getElementById('tvSelectorSection').classList.add('hidden-section');
+      }
+
+      const credits = await App.tmdbFetch(`/${type}/${item.id}/credits`);
+      document.getElementById('dashCastRow').innerHTML = credits?.cast?.slice(0, 10).map(c => `
+        <div class="cast-card">
+          <img class="cast-img" src="${c.profile_path ? TMDB_IMAGE_BASE+c.profile_path : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150'}">
+          <div class="cast-name">${c.name}</div>
+          <div class="cast-char">${c.character}</div>
+        </div>
+      `).join('') || '';
+
+      const recommendations = await App.tmdbFetch(`/${type}/${item.id}/recommendations`);
+      document.getElementById('dashRecommendationsRow').innerHTML = recommendations?.results?.slice(0, 8).map(r => UI.createCardMarkup({...r, media_type: type})).join('') || '<p style="color:var(--muted)">None found.</p>';
+
+      document.getElementById('dashboardOverlay').classList.add('open');
+      if (autoPlayDirectly) { if(type === 'tv') App.playTVEpisode(1); else UI.openPlayer(); }
+    },
+
+    closeDashboard() { document.getElementById('dashboardOverlay').classList.remove('open'); },
+
+    async openTrailerInNewTab() {
+      const item = App.currentMedia;
+      if(!item) return;
+      const type = item.media_type === 'tv' ? 'tv' : 'movie';
+      const videoData = await App.tmdbFetch(`/${type}/${item.id}/videos`);
+      const trailer = videoData?.results?.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
+      
+      if(trailer) {
+        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
+      } else {
+        alert("Apologies! No matching trailers found on record for this title.");
+      }
+    },
+
+    openPlayer() {
+      const item = App.currentMedia;
       document.getElementById('pTitle').innerText = item.title;
-      document.getElementById('pMeta').innerHTML = `<span>Release: ${item.release_date}</span> • <span>Rating: ⭐ ${item.vote_average}</span>`;
       
-      this.updatePlayerWatchlistBtn(item.id);
+      const isTV = item.media_type === 'tv';
+      document.getElementById('playerNextEpBtn').style.display = isTV ? 'flex' : 'none';
+      document.getElementById('playerNextEpBtn').onclick = () => App.nextEpisode();
+      
       this.loadIframeSource();
-      
-      if(modal) modal.classList.add('open');
-      ContinueWatching.save(item, Math.floor(Math.random() * 60) + 20);
-      
-      document.getElementById('playerWatchlistBtn').onclick = () => {
-        Watchlist.toggle(App.currentPlayerItem);
-      };
+      document.getElementById('playerModal').classList.add('open');
+      ContinueWatching.save(item, Math.floor(Math.random() * 50) + 30);
     },
 
     closePlayer() {
-      const modal = document.getElementById('playerModal');
-      const iframe = document.getElementById('playerIframe');
-      if(iframe) iframe.src = "";
-      if(modal) modal.classList.remove('open');
+      document.getElementById('playerIframe').src = "";
+      document.getElementById('playerModal').classList.remove('open');
     },
 
     switchSource(src, btn) {
@@ -618,26 +900,27 @@
 
     loadIframeSource() {
       const iframe = document.getElementById('playerIframe');
-      if (!iframe || !App.currentPlayerItem) return;
+      if (!iframe || !App.currentMedia) return;
+      const item = App.currentMedia;
+      const type = item.media_type === 'tv' ? 'tv' : 'movie';
       
-      const id = App.currentPlayerItem.id;
-      const type = App.currentPlayerItem.media_type === 'tv' ? 'tv' : 'movie';
-      
-      iframe.src = App.currentSource === 'pulp' 
-        ? `https://vidsrc.me/embed/${type}?tmdb=${id}`
-        : `https://vidsrc.to/embed/${type}/${id}`;
+      if (type === 'tv') {
+        document.getElementById('playerEpisodeIndicator').innerText = `S${App.activeSeason} : E${App.activeEpisode}`;
+        iframe.src = App.currentSource === 'pulp' 
+          ? `https://vidsrc.me/embed/tv?tmdb=${item.id}&season=${App.activeSeason}&episode=${App.activeEpisode}`
+          : `https://vidsrc.to/embed/tv/${item.id}/${App.activeSeason}/${App.activeEpisode}`;
+      } else {
+        document.getElementById('playerEpisodeIndicator').innerText = "";
+        iframe.src = App.currentSource === 'pulp' 
+          ? `https://vidsrc.me/embed/movie?tmdb=${item.id}`
+          : `https://vidsrc.to/embed/movie/${item.id}`;
+      }
     },
 
-    updatePlayerWatchlistBtn(id) {
-      const btn = document.getElementById('playerWatchlistBtn');
+    updateDashboardWatchlistBtn(id) {
+      const btn = document.getElementById('dashWatchlistBtn');
       if (!btn) return;
-      if (Watchlist.has(id)) {
-        btn.innerText = "❤️ In Watchlist";
-        btn.classList.add('in-watchlist');
-      } else {
-        btn.innerText = "📋 + Watchlist";
-        btn.classList.remove('in-watchlist');
-      }
+      btn.innerText = Watchlist.has(id) ? "❤️ In Watchlist" : "📋 + Watchlist";
     }
   };
 
