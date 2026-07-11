@@ -29,6 +29,56 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .hidden-section { display: none; }
 
+    /* Hypastack Top Promo Banner */
+    .promo-banner {
+      background: linear-gradient(90deg, #13131f 0%, #0c0c12 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      position: relative;
+      z-index: 1001;
+    }
+    .promo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .promo-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .promo-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .promo-subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+    .promo-btn {
+      margin-left: 8px;
+      background: #fff;
+      color: #000;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .promo-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    }
+
     nav {
       position: sticky; top: 0; z-index: 1000;
       background: rgba(10, 10, 15, 0.7);
@@ -136,9 +186,25 @@
       nav { height: 60px; justify-content: space-between; }
       .hero-title { font-size: 2.8rem; }
     }
+    @media (max-width: 480px) {
+      .promo-banner { gap: 8px; padding: 8px 12px; }
+      .promo-title { font-size: 0.8rem; }
+      .promo-subtitle { font-size: 0.68rem; }
+      .promo-btn { padding: 4px 10px; font-size: 0.72rem; }
+    }
   </style>
 </head>
 <body class="theme-home">
+
+<!-- Hypastack Top Promo Banner Badge -->
+<div class="promo-banner">
+  <img src="https://r2.hypastack.com/cdn/lvko6iovrtq7/footer.webp" alt="Hypastack Icon" class="promo-icon">
+  <div class="promo-text">
+    <span class="promo-title">Check out Hypastack!</span>
+    <span class="promo-subtitle">Free Storage X Full Privacy</span>
+  </div>
+  <a href="https://hypastack.com" target="_blank" rel="noopener" class="promo-btn">Visit Hypastack</a>
+</div>
 
 <nav>
   <div class="logo" onclick="Router.go('home')">🦆 StreamDuck</div>
@@ -230,657 +296,4 @@
   </div>
 
   <div class="section fade-in">
-    <div class="section-header"><h2 class="section-title">🎬 Movies</h2><a class="see-all" onclick="Router.go('movies')">See All →</a></div>
-    <div class="scroll-row" id="topRatedRow"></div>
-  </div>
-
-  <div class="section fade-in">
-    <div class="section-header"><h2 class="section-title">📺 TV Shows</h2><a class="see-all" onclick="Router.go('tv')">See All →</a></div>
-    <div class="scroll-row" id="tvRow"></div>
-  </div>
-</template>
-
-<template id="grid-tpl">
-  <div class="section fade-in">
-    <h1 id="gridTitle" class="section-title" style="font-size: 2.2rem; margin-bottom: 1rem;"></h1>
-    <div class="genre-tabs" id="genreTabs"></div>
-    <div class="movie-grid" id="movieGrid"></div>
-    <div style="text-align: center; margin-top: 3rem;"><button class="btn btn-secondary" style="margin: 0 auto; width: auto;" onclick="App.loadMore()">Load More</button></div>
-  </div>
-</template>
-
-<template id="search-tpl">
-  <div class="section fade-in">
-    <h1 id="searchTitle" class="section-title" style="margin-bottom: 1.5rem;"></h1>
-    <div class="movie-grid" id="searchGrid"></div>
-  </div>
-</template>
-
-<div id="playerModal">
-  <div class="modal-content">
-    <div class="player-header">
-      <div style="flex: 1;">
-        <h2 class="p-title" id="pTitle"></h2>
-        <div class="p-meta" id="pMeta"></div>
-      </div>
-      <div class="player-actions">
-        <button class="player-watchlist-btn" id="playerWatchlistBtn">📋 + Watchlist</button>
-        <button class="close-btn" onclick="UI.closePlayer()">✕</button>
-      </div>
-    </div>
-    <div class="source-toggle">
-      <button class="src-btn active" onclick="UI.switchSource('pulp', this)">Source 1</button>
-      <button class="src-btn" onclick="UI.switchSource('vidapi', this)">Source 2</button>
-    </div>
-    <div class="iframe-container"><iframe id="playerIframe" allowfullscreen allow="autoplay; encrypted-media" referrerpolicy="no-referrer"></iframe></div>
-    <div class="p-info"><p class="p-overview" id="pOverview"></p><div id="pGenres" style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;"></div></div>
-  </div>
-</div>
-
-<footer>
-  <p>StreamDuck &copy; 2026</p>
-</footer>
-
-<script>
-const CONFIG = {
-  TMDB_KEY: 'a31a9bbd61ad9d66f465457558a2d397',
-  TMDB_BASE: 'https://api.themoviedb.org/3',
-  IMG_BASE: 'https://image.tmdb.org/t/p/',
-  HERO_INTERVAL: 8000,
-  IDLE_INTERVAL: 3000,
-  PULP_API_KEY: '61VUCJuTavAkTsTDybraPpg4GngkXD9y',
-  PULP_BASE_URL: 'https://authapi.pulp.watch/v1'
-};
-
-const State = { 
-  currentSection: 'home', currentPage: 1, currentGenre: '', gridType: 'movie', 
-  heroItems: [], heroIndex: 0, heroTimer: null, searchTimer: null, 
-  idleItems: [], idleIndex: 0, idleTimer: null, isShuffling: false, 
-  currentMedia: null, currentType: null, currentImdbId: null, currentSource: 'pulp',
-  currentSeason: 1, currentEpisode: 1, currentTmdbId: null
-};
-
-// ==============================================
-// SECTION VISIBILITY HELPERS
-// ==============================================
-function updateSectionVisibility() {
-  const watchlistSection = document.getElementById('watchlist-section');
-  const continueSection = document.getElementById('continue-section');
-  const mostwatchedSection = document.getElementById('mostwatched-section');
-  
-  const watchlistItems = Watchlist.get();
-  const continueItems = ContinueWatching.get();
-  const mostwatchedItems = MostWatched.get();
-  
-  if (watchlistSection) {
-    if (watchlistItems.length > 0) watchlistSection.classList.remove('hidden-section');
-    else watchlistSection.classList.add('hidden-section');
-  }
-  
-  if (continueSection) {
-    if (continueItems.length > 0) continueSection.classList.remove('hidden-section');
-    else continueSection.classList.add('hidden-section');
-  }
-  
-  if (mostwatchedSection) {
-    if (mostwatchedItems.length > 0) mostwatchedSection.classList.remove('hidden-section');
-    else mostwatchedSection.classList.add('hidden-section');
-  }
-}
-
-// ==============================================
-// WATCHLIST SYSTEM
-// ==============================================
-const Watchlist = {
-  add(item) {
-    let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
-    if (!list.find(i => i.id === item.id)) {
-      list.unshift(item);
-      localStorage.setItem('watchlist', JSON.stringify(list.slice(0, 50)));
-      this.showToast('✓ Added to watchlist');
-    } else {
-      this.showToast('Already in watchlist');
-      return false;
-    }
-    this.render();
-    updateSectionVisibility();
-    this.updatePlayerButton();
-    return true;
-  },
-  remove(id) {
-    let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
-    list = list.filter(i => i.id !== id);
-    localStorage.setItem('watchlist', JSON.stringify(list));
-    this.showToast('✗ Removed from watchlist');
-    this.render();
-    updateSectionVisibility();
-    this.updatePlayerButton();
-  },
-  isInWatchlist(id) {
-    let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
-    return list.some(i => i.id === id);
-  },
-  get() {
-    return JSON.parse(localStorage.getItem('watchlist') || '[]');
-  },
-  render() {
-    const container = document.getElementById('watchlist-row');
-    if (!container) return;
-    const items = this.get();
-    if (items.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-    container.innerHTML = '';
-    items.forEach(item => {
-      const mediaItem = {
-        id: item.id,
-        title: item.title,
-        name: item.title,
-        poster_path: item.poster_path,
-        vote_average: item.vote_average || 7,
-        media_type: item.media_type || 'movie'
-      };
-      const card = UI.createCard(mediaItem, mediaItem.media_type);
-      container.appendChild(card);
-    });
-  },
-  updatePlayerButton() {
-    const btn = document.getElementById('playerWatchlistBtn');
-    if (!btn || !State.currentMedia) return;
-    const isIn = this.isInWatchlist(State.currentMedia.id);
-    if (isIn) {
-      btn.textContent = '✓ In Watchlist';
-      btn.classList.add('in-watchlist');
-    } else {
-      btn.textContent = '📋 + Watchlist';
-      btn.classList.remove('in-watchlist');
-    }
-  },
-  showToast(msg) {
-    let toast = document.getElementById('watchlist-toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'watchlist-toast';
-      toast.style.cssText = 'position:fixed; bottom:80px; right:20px; background:var(--accent); color:#000; padding:10px 20px; border-radius:10px; font-weight:600; z-index:10000; opacity:0; transition:0.3s; font-size:14px;';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.style.opacity = '1';
-    setTimeout(() => toast.style.opacity = '0', 2000);
-  }
-};
-
-// ==============================================
-// CONTINUE WATCHING SYSTEM
-// ==============================================
-const ContinueWatching = {
-  save(media, progressPercent, timestamp) {
-    if (!media || !media.id || progressPercent < 5) return;
-    let history = JSON.parse(localStorage.getItem('continueWatching') || '[]');
-    const existingIndex = history.findIndex(h => h.id === media.id);
-    const entry = {
-      id: media.id,
-      title: media.title || media.name,
-      poster_path: media.poster_path,
-      media_type: media.media_type || 'movie',
-      progress: Math.min(progressPercent, 94),
-      timestamp: timestamp || Date.now(),
-      vote_average: media.vote_average
-    };
-    if (existingIndex !== -1) {
-      history[existingIndex] = entry;
-    } else {
-      history.unshift(entry);
-    }
-    history = history.filter(h => h.progress < 95).slice(0, 20);
-    localStorage.setItem('continueWatching', JSON.stringify(history));
-    this.render();
-    updateSectionVisibility();
-  },
-  get() {
-    return JSON.parse(localStorage.getItem('continueWatching') || '[]');
-  },
-  render() {
-    const container = document.getElementById('continue-row');
-    if (!container) return;
-    const items = this.get();
-    if (items.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-    container.innerHTML = '';
-    items.forEach(item => {
-      const mediaItem = {
-        id: item.id,
-        title: item.title,
-        name: item.title,
-        poster_path: item.poster_path,
-        vote_average: item.vote_average || 7,
-        media_type: item.media_type
-      };
-      const card = UI.createCard(mediaItem, item.media_type);
-      const progressBar = document.createElement('div');
-      progressBar.className = 'progress-bar';
-      progressBar.style.width = `${item.progress}%`;
-      card.style.position = 'relative';
-      card.appendChild(progressBar);
-      container.appendChild(card);
-    });
-  },
-  clearAll() {
-    if (confirm('Clear all continue watching history?')) {
-      localStorage.removeItem('continueWatching');
-      this.render();
-      updateSectionVisibility();
-    }
-  }
-};
-
-// ==============================================
-// MOST WATCHED SYSTEM
-// ==============================================
-const MostWatched = {
-  trackView(media) {
-    let stats = JSON.parse(localStorage.getItem('mostWatched') || '{"views":{},"total":0}');
-    const id = media.id;
-    if (!stats.views[id]) {
-      stats.views[id] = { id: media.id, title: media.title || media.name, poster: media.poster_path, type: media.media_type || 'movie', count: 0, rating: media.vote_average };
-    }
-    stats.views[id].count++;
-    stats.total++;
-    localStorage.setItem('mostWatched', JSON.stringify(stats));
-    this.render();
-    updateSectionVisibility();
-  },
-  get(limit = 15) {
-    const stats = JSON.parse(localStorage.getItem('mostWatched') || '{"views":{},"total":0}');
-    return Object.values(stats.views).sort((a, b) => b.count - a.count).slice(0, limit);
-  },
-  render() {
-    const container = document.getElementById('mostwatched-row');
-    if (!container) return;
-    const topItems = this.get();
-    if (topItems.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-    container.innerHTML = '';
-    topItems.forEach(item => {
-      const fakeMedia = {
-        id: item.id,
-        title: item.title,
-        name: item.title,
-        poster_path: item.poster,
-        vote_average: item.rating || 7,
-        media_type: item.type
-      };
-      const card = UI.createCard(fakeMedia, item.type);
-      container.appendChild(card);
-    });
-  }
-};
-
-const API = {
-  async fetch(path, params = {}) {
-    const query = new URLSearchParams({ api_key: CONFIG.TMDB_KEY, language: 'en-US', ...params });
-    try { const response = await fetch(`${CONFIG.TMDB_BASE}${path}?${query}`); return await response.json(); } catch (err) { return { results: [] }; }
-  },
-  getImg(path, size = 'w500') { return path ? `${CONFIG.IMG_BASE}${size}${path}` : 'https://via.placeholder.com/500x750?text=No+Image'; },
-  async fetchPulpMovie(tmdbId, providerId = 'auto') {
-    const url = `${CONFIG.PULP_BASE_URL}/movies/${tmdbId}?provider=${providerId}`;
-    try {
-      const response = await fetch(url, { headers: { 'x-api-key': CONFIG.PULP_API_KEY } });
-      if (!response.ok) throw new Error(`Pulp API error: ${response.status}`);
-      return await response.json();
-    } catch (err) { return null; }
-  },
-  async fetchPulpTV(tmdbId, season, episode, providerId = 'auto') {
-    const url = `${CONFIG.PULP_BASE_URL}/tv/${tmdbId}/seasons/${season}/episodes/${episode}?provider=${providerId}`;
-    try {
-      const response = await fetch(url, { headers: { 'x-api-key': CONFIG.PULP_API_KEY } });
-      if (!response.ok) throw new Error(`Pulp API error: ${response.status}`);
-      return await response.json();
-    } catch (err) { return null; }
-  },
-  getPulpStreamUrl(mediaData) {
-    if (mediaData && mediaData.sources && mediaData.sources.length > 0) {
-      const source = mediaData.sources.find(s => s.type === 'mp4' || s.type === 'hls');
-      if (source) return source.url;
-    }
-    return null;
-  }
-};
-
-const Router = {
-  go(section) {
-    State.currentSection = section; State.currentPage = 1; State.currentGenre = '';
-    if (section !== 'home') { 
-      clearInterval(State.heroTimer); State.heroTimer = null; 
-      clearInterval(State.idleTimer); State.idleTimer = null; 
-    }
-    UI.updateNav(section); UI.setTheme(section); UI.renderSection(section);
-    window.scrollTo({ top: 0, behavior: 'smooth' }); 
-    document.getElementById('searchWrap').classList.remove('active');
-  }
-};
-
-const UI = {
-  app: document.getElementById('app'),
-  setTheme(section) { document.body.className = `theme-${section}`; },
-  updateNav(section) { 
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.sec === section)); 
-    document.getElementById('navLinks').classList.remove('mobile-open'); 
-  },
-  toggleMobileMenu() { document.getElementById('navLinks').classList.toggle('mobile-open'); },
-  toggleSearch() { document.getElementById('searchWrap').classList.toggle('active'); },
-  renderSection(section) {
-    const tpl = document.getElementById(`${section === 'home' ? 'home' : (section === 'search' ? 'search' : 'grid')}-tpl`);
-    this.app.innerHTML = ''; 
-    this.app.appendChild(tpl.content.cloneNode(true));
-    if (section === 'home') {
-      App.initHome();
-      setTimeout(() => {
-        Watchlist.render();
-        ContinueWatching.render();
-        MostWatched.render();
-        updateSectionVisibility();
-      }, 100);
-    }
-    else if (section === 'movies') App.initGrid('movie', 'Movies');
-    else if (section === 'tv') App.initGrid('tv', 'TV Shows');
-    else if (section === 'trending') App.initGrid('movie', 'Trending', '/trending/movie/week');
-    else if (section === 'anime') App.initAnime();
-  },
-  createCard(m, type = 'movie') {
-    const card = document.createElement('div'); 
-    card.className = 'card fade-in';
-    const title = m.title || m.name; 
-    const year = (m.release_date || m.first_air_date || '').slice(0, 4); 
-    const rating = m.vote_average ? m.vote_average.toFixed(1) : 'N/A';
-    const isInWatchlist = Watchlist.isInWatchlist(m.id);
-    
-    card.innerHTML = `
-      <img class="card-poster" src="${API.getImg(m.poster_path, 'w342')}" alt="${title}" loading="lazy">
-      <div class="card-rating">⭐ ${rating}</div>
-      <div class="card-overlay">
-        <div class="card-title">${title}</div>
-        <div class="card-year">${year}</div>
-        <button class="watchlist-btn ${isInWatchlist ? 'in-watchlist' : ''}" data-id="${m.id}">${isInWatchlist ? '✓ In Watchlist' : '+ Watchlist'}</button>
-      </div>
-    `;
-    
-    card.onclick = (e) => {
-      if (e.target.classList.contains('watchlist-btn')) return;
-      App.openMedia(m, type);
-    };
-    
-    const btn = card.querySelector('.watchlist-btn');
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      if (Watchlist.isInWatchlist(m.id)) {
-        Watchlist.remove(m.id);
-        btn.textContent = '+ Watchlist';
-        btn.classList.remove('in-watchlist');
-        btn.style.background = 'rgba(255,255,255,0.2)';
-      } else {
-        Watchlist.add({ id: m.id, title, poster_path: m.poster_path, media_type: type, vote_average: rating });
-        btn.textContent = '✓ In Watchlist';
-        btn.classList.add('in-watchlist');
-        btn.style.background = '#ff4444';
-      }
-    };
-    
-    return card;
-  },
-  openPlayer(m, type, imdbId, tmdbId = null) {
-    State.currentMedia = m; State.currentType = type; State.currentImdbId = imdbId; 
-    State.currentTmdbId = tmdbId || m.id; State.currentSource = 'pulp';
-    document.getElementById('pTitle').textContent = m.title || m.name; 
-    const year = (m.release_date || m.first_air_date || '').slice(0, 4);
-    document.getElementById('pMeta').innerHTML = `<span>⭐ ${m.vote_average?.toFixed(1) || 'N/A'}</span><span>${year}</span><span style="text-transform:uppercase;">${type}</span>`;
-    document.getElementById('pOverview').textContent = m.overview || 'No description available.';
-    document.querySelectorAll('.src-btn').forEach((b,i) => b.classList.toggle('active', i === 0));
-    
-    // Setup player watchlist button
-    const playerBtn = document.getElementById('playerWatchlistBtn');
-    const isInWatchlist = Watchlist.isInWatchlist(m.id);
-    if (isInWatchlist) {
-      playerBtn.textContent = '✓ In Watchlist';
-      playerBtn.classList.add('in-watchlist');
-    } else {
-      playerBtn.textContent = '📋 + Watchlist';
-      playerBtn.classList.remove('in-watchlist');
-    }
-    playerBtn.onclick = () => {
-      if (Watchlist.isInWatchlist(m.id)) {
-        Watchlist.remove(m.id);
-        playerBtn.textContent = '📋 + Watchlist';
-        playerBtn.classList.remove('in-watchlist');
-      } else {
-        Watchlist.add({ id: m.id, title: m.title || m.name, poster_path: m.poster_path, media_type: type, vote_average: m.vote_average });
-        playerBtn.textContent = '✓ In Watchlist';
-        playerBtn.classList.add('in-watchlist');
-      }
-    };
-    
-    this.setPlayerSrc('pulp');
-    document.getElementById('playerModal').classList.add('open'); 
-    document.body.style.overflow = 'hidden';
-    
-    MostWatched.trackView({ ...m, media_type: type });
-  },
-  async setPlayerSrc(source) {
-    const m = State.currentMedia; 
-    const type = State.currentType; 
-    const tmdbId = State.currentTmdbId;
-    const imdbId = State.currentImdbId;
-    const iframe = document.getElementById('playerIframe');
-    iframe.src = '';
-
-    if (source === 'pulp') {
-      let streamUrl = null;
-      if (type === 'movie') {
-        const data = await API.fetchPulpMovie(tmdbId, 'auto');
-        streamUrl = API.getPulpStreamUrl(data);
-      } else if (type === 'tv') {
-        const season = State.currentSeason || 1;
-        const episode = State.currentEpisode || 1;
-        const data = await API.fetchPulpTV(tmdbId, season, episode, 'auto');
-        streamUrl = API.getPulpStreamUrl(data);
-      }
-      if (streamUrl) {
-        iframe.src = streamUrl;
-      } else {
-        iframe.src = `https://vidsrc.to/embed/${type === 'tv' ? 'tv' : 'movie'}/${tmdbId}`;
-      }
-    } else if (source === 'vidapi') {
-      iframe.src = `https://vidsrc.to/embed/${type === 'tv' ? 'tv' : 'movie'}/${tmdbId}`;
-    }
-    
-    let progressInterval = setInterval(() => {
-      try {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        const video = iframeDoc?.querySelector('video');
-        if (video && video.duration) {
-          const percent = (video.currentTime / video.duration) * 100;
-          ContinueWatching.save(m, percent, Date.now());
-          if (percent > 95) clearInterval(progressInterval);
-        }
-      } catch(e) {}
-    }, 5000);
-  },
-  switchSource(source, el) {
-    State.currentSource = source;
-    document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    this.setPlayerSrc(source);
-  },
-  closePlayer() { 
-    document.getElementById('playerModal').classList.remove('open'); 
-    document.getElementById('playerIframe').src = ''; 
-    document.body.style.overflow = ''; 
-  }
-};
-
-const App = {
-  async initHome() { 
-    this.loadHero(); 
-    this.loadRow('trendingRow', '/trending/all/week'); 
-    this.loadRow('topRatedRow', '/movie/top_rated'); 
-    this.loadRow('tvRow', '/tv/popular', 'tv'); 
-    this.initIdleShuffler(); 
-  },
-  async loadHero() {
-    const data = await API.fetch('/trending/all/day'); 
-    State.heroItems = data.results.slice(0, 6);
-    const container = document.getElementById('heroDots'); 
-    if (container) container.innerHTML = State.heroItems.map((_, i) => `<div class="hdot" onclick="App.setHero(${i})"></div>`).join('');
-    this.setHero(0); 
-    if (State.heroTimer) clearInterval(State.heroTimer); 
-    State.heroTimer = setInterval(() => this.setHero((State.heroIndex + 1) % State.heroItems.length), CONFIG.HERO_INTERVAL);
-  },
-  setHero(index) {
-    State.heroIndex = index; 
-    const m = State.heroItems[index]; 
-    const hero = document.getElementById('hero'); 
-    if (!m || !hero) return;
-    hero.classList.remove('active'); 
-    setTimeout(() => {
-      document.getElementById('heroBg').style.backgroundImage = `url(${API.getImg(m.backdrop_path, 'original')})`;
-      document.getElementById('heroTitle').textContent = m.title || m.name; 
-      document.getElementById('heroOverview').textContent = m.overview;
-      document.getElementById('heroMeta').innerHTML = `<span>⭐ ${m.vote_average.toFixed(1)}</span><span>${(m.release_date || m.first_air_date || '').slice(0,4)}</span><span style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">${(m.media_type || 'movie').toUpperCase()}</span>`;
-      document.getElementById('heroPlayBtn').onclick = () => this.openMedia(m, m.media_type || 'movie');
-      document.getElementById('heroInfoBtn').onclick = () => this.openMedia(m, m.media_type || 'movie');
-      document.querySelectorAll('.hdot').forEach((dot, i) => dot.classList.toggle('active', i === index)); 
-      hero.classList.add('active');
-    }, 50);
-  },
-  async loadRow(id, path, type = 'movie') { 
-    const container = document.getElementById(id); 
-    const data = await API.fetch(path); 
-    container.innerHTML = ''; 
-    data.results.slice(0, 15).forEach(m => container.appendChild(UI.createCard(m, type))); 
-  },
-  async initIdleShuffler() {
-    const data = await API.fetch('/trending/all/week'); 
-    State.idleItems = data.results.filter(m => m.poster_path); 
-    State.idleIndex = 0;
-    const img = document.getElementById('shuffleImg'); 
-    if (img && State.idleItems.length) img.src = API.getImg(State.idleItems[0].poster_path, 'w342');
-    if (State.idleTimer) clearInterval(State.idleTimer);
-    State.idleTimer = setInterval(() => { 
-      if (!State.isShuffling) { 
-        State.idleIndex = (State.idleIndex + 1) % State.idleItems.length; 
-        const img = document.getElementById('shuffleImg'); 
-        if (img) { 
-          img.style.opacity = '0'; 
-          setTimeout(() => { 
-            img.src = API.getImg(State.idleItems[State.idleIndex].poster_path, 'w342'); 
-            img.style.opacity = '1'; 
-          }, 500); 
-        } 
-      } 
-    }, CONFIG.IDLE_INTERVAL);
-  },
-  async shuffle() {
-    State.isShuffling = true; 
-    const card = document.getElementById('shuffleCard'); 
-    const info = document.getElementById('shuffleInfo'); 
-    const initBtn = document.getElementById('shuffleInitBtn');
-    initBtn.style.display = 'none'; 
-    info.classList.remove('visible'); 
-    card.classList.add('spinning');
-    const type = Math.random() > 0.5 ? 'movie' : 'tv'; 
-    const page = Math.floor(Math.random() * 20) + 1;
-    const data = await API.fetch(`/discover/${type}`, { page, sort_by: 'popularity.desc' });
-    const random = data.results[Math.floor(Math.random() * data.results.length)];
-    setTimeout(() => { 
-      card.classList.remove('spinning'); 
-      document.getElementById('shuffleImg').src = API.getImg(random.poster_path, 'w342'); 
-      document.getElementById('shuffleName').textContent = random.title || random.name; 
-      document.getElementById('shufflePlayBtn').onclick = () => this.openMedia(random, type); 
-      info.classList.add('visible'); 
-      State.isShuffling = false;
-    }, 1500);
-  },
-  async initGrid(type, title, path = null) { 
-    State.gridType = type; 
-    State.currentPath = path || (type === 'movie' ? '/discover/movie' : '/discover/tv'); 
-    document.getElementById('gridTitle').textContent = title; 
-    if (type !== 'trending') this.loadGenres(type); 
-    this.loadGrid(1); 
-  },
-  async loadGenres(type) { 
-    const data = await API.fetch(`/genre/${type}/list`); 
-    const container = document.getElementById('genreTabs'); 
-    container.innerHTML = `<button class="gtab active" onclick="App.filterGenre('', this)">All</button>`; 
-    data.genres.forEach(g => container.innerHTML += `<button class="gtab" onclick="App.filterGenre(${g.id}, this)">${g.name}</button>`); 
-  },
-  filterGenre(id, el) { 
-    State.currentGenre = id; State.currentPage = 1; 
-    document.querySelectorAll('.gtab').forEach(b => b.classList.remove('active')); 
-    el.classList.add('active'); 
-    this.loadGrid(1); 
-  },
-  async loadGrid(page) { 
-    const container = document.getElementById('movieGrid'); 
-    const params = { page }; 
-    if (State.currentGenre) params.with_genres = State.currentGenre; 
-    const data = await API.fetch(State.currentPath, params); 
-    if (page === 1) container.innerHTML = ''; 
-    data.results.forEach(m => container.appendChild(UI.createCard(m, State.gridType))); 
-  },
-  loadMore() { 
-    State.currentPage++; 
-    this.loadGrid(State.currentPage); 
-  },
-  async initAnime() { 
-    document.getElementById('gridTitle').textContent = 'Anime'; 
-    document.getElementById('genreTabs').innerHTML = `<button class="gtab active">Popular</button>`; 
-    const container = document.getElementById('movieGrid'); 
-    const data = await API.fetch('/discover/tv', { with_genres: 16, with_original_language: 'ja', sort_by: 'popularity.desc' }); 
-    container.innerHTML = ''; 
-    data.results.forEach(m => container.appendChild(UI.createCard(m, 'tv'))); 
-  },
-  async openMedia(m, type) { 
-    const ext = await API.fetch(`/${type}/${m.id}/external_ids`); 
-    const details = await API.fetch(`/${type}/${m.id}`); 
-    UI.openPlayer(m, type, ext.imdb_id, m.id); 
-    document.getElementById('pGenres').innerHTML = (details.genres || []).map(g => `<span class="gtab" style="font-size:0.7rem; padding:4px 12px;">${g.name}</span>`).join(''); 
-  },
-  async doSearch(q) { 
-    if (!q.trim()) return; 
-    Router.go('search'); 
-    const container = document.getElementById('searchGrid'); 
-    document.getElementById('searchTitle').textContent = `Results for "${q}"`; 
-    const [movies, shows] = await Promise.all([API.fetch('/search/movie', { query: q }), API.fetch('/search/tv', { query: q })]); 
-    const merged = [...movies.results.map(m => ({ ...m, _type: 'movie' })), ...shows.results.map(m => ({ ...m, _type: 'tv' }))].sort((a, b) => b.popularity - a.popularity); 
-    container.innerHTML = merged.length ? '' : '<p>No results found.</p>'; 
-    merged.forEach(m => container.appendChild(UI.createCard(m, m._type))); 
-  }
-};
-
-document.getElementById('searchInput').addEventListener('input', (e) => { 
-  clearTimeout(State.searchTimer); 
-  const val = e.target.value; 
-  if (!val.trim()) { 
-    if (State.currentSection === 'search') Router.go('home'); 
-    return; 
-  } 
-  State.searchTimer = setTimeout(() => App.doSearch(val), 500); 
-});
-
-window.onclick = (e) => { 
-  if (e.target === document.getElementById('playerModal')) UI.closePlayer(); 
-};
-
-document.addEventListener('keydown', (e) => { 
-  if (e.key === 'Escape') UI.closePlayer(); 
-});
-
-window.onload = () => Router.go('home');
-</script>
-</body>
-</html>
+    <div class="section-header"><h2 class="section-title">🎬 Movies</h2><a
