@@ -93,13 +93,6 @@
     </div>
 
     <div class="settings-group">
-      <!-- WIP Warning Banner for Light Mode Block -->
-      <div class="wip-banner-overlay" id="wipNoticeBlock">
-        <div class="wip-title">🚧 Work In Progress 🚧</div>
-        <div class="wip-text">The classic light mode design is currently under construction. Stick to the dark side for now!</div>
-        <button class="btn btn-primary" style="padding: 6px 16px; font-size:0.8rem;" onclick="AppSettings.closeWipNotice(event)">Got it</button>
-      </div>
-
       <span class="settings-label">Static Layout Overrides</span>
       
       <div class="toggle-row" onclick="AppSettings.handleToggleClick('dark')">
@@ -124,17 +117,6 @@
         </label>
       </div>
 
-      <!-- Classic Light Mode Switch triggers WIP block container -->
-      <div class="toggle-row" onclick="AppSettings.handleToggleClick('light')">
-        <div class="toggle-info">
-          <span class="toggle-title">☀️ Classic Light <span class="wip-badge">WIP</span></span>
-          <span class="toggle-desc">Bright, crisp aesthetics</span>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="chk-light">
-          <span class="slider"></span>
-        </label>
-      </div>
     </div>
   </div>
 </div>
@@ -170,7 +152,7 @@
       <div class="tv-controls">
         <h3>Select Season & Episode</h3>
         <select id="seasonDropdown" class="select-style" onchange="App.handleSeasonChange(this.value)"></select>
-        <div class="episode-grid" id="episodeGrid"></div>
+        <div class="episode-list" id="episodeGrid"></div>
       </div>
     </div>
   </div>
@@ -240,7 +222,21 @@
 
 <template id="grid-tpl">
   <div class="section fade-in">
-    <h1 id="gridTitle" class="section-title" style="font-size: 2rem; margin-bottom: 1rem;"></h1>
+    <div class="grid-header-wrap" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1.5rem; flex-wrap: wrap;">
+      <h1 id="gridTitle" class="section-title" style="font-size: 2.2rem; margin-bottom: 0; font-weight: 800; letter-spacing: -0.5px;"></h1>
+      
+      <div class="filter-controls" id="filterControls" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <select id="genreFilter" class="select-style" style="margin-bottom: 0; min-width: 150px; padding: 8px 16px; font-size: 0.88rem;" onchange="App.handleFilterChange()">
+          <option value="">All Genres</option>
+        </select>
+        
+        <select id="sortBy" class="select-style" style="margin-bottom: 0; min-width: 180px; padding: 8px 16px; font-size: 0.88rem;" onchange="App.handleFilterChange()">
+          <option value="popularity.desc">Popularity</option>
+          <option value="vote_average.desc">Rating (High to Low)</option>
+          <option value="release_date.desc">Release Date (Newest)</option>
+        </select>
+      </div>
+    </div>
     <div class="movie-grid" id="movieGrid"></div>
   </div>
 </template>
@@ -280,6 +276,10 @@
     spoilerSafe: localStorage.getItem('duck_spoiler_safe') !== 'false',
     
     init() {
+      if (this.themeMode === 'light') {
+        this.themeMode = 'dynamic';
+        localStorage.setItem('duck_theme_mode', 'dynamic');
+      }
       this.applyThemeStyles();
       this.applySpoilerSetting();
     },
@@ -290,11 +290,6 @@
       if(e.target.id === 'settingsOverlay') this.toggleDrawer();
     },
     handleToggleClick(mode) {
-      if (mode === 'light') {
-        // Blocks transition and exposes WIP Shield interface modal
-        document.getElementById('wipNoticeBlock').classList.add('active');
-        return;
-      }
       if (mode === 'spoiler') {
         this.setSpoilerSafe(!this.spoilerSafe);
         return;
@@ -302,10 +297,6 @@
       this.themeMode = mode;
       localStorage.setItem('duck_theme_mode', mode);
       this.applyThemeStyles();
-    },
-    closeWipNotice(e) {
-      e.stopPropagation();
-      document.getElementById('wipNoticeBlock').classList.remove('active');
     },
     toggleSpoilerMode() {
       this.setSpoilerSafe(!this.spoilerSafe);
@@ -338,7 +329,7 @@
       document.body.classList.remove('mode-dynamic', 'mode-dark', 'mode-amoled', 'mode-light');
       document.body.classList.add(`mode-${this.themeMode}`);
       
-      ['dynamic', 'dark', 'amoled', 'light'].forEach(m => {
+      ['dynamic', 'dark', 'amoled'].forEach(m => {
         const input = document.getElementById(`chk-${m}`);
         if(input) input.checked = (this.themeMode === m);
       });
@@ -498,9 +489,34 @@
         const tvData = await this.tmdbFetch('/tv/popular');
         if(tvData) document.getElementById('tvRow').innerHTML = tvData.results.map(i => ({...i, media_type:'tv'})).map(i => UI.createCardMarkup(i)).join('');
       } else {
-        document.getElementById('gridTitle').innerText = section.toUpperCase();
+        document.getElementById('gridTitle').innerText = section === 'movies' ? 'MOVIES' : section === 'tv' ? 'TV SHOWS' : section.toUpperCase();
+        await this.populateGenres(section);
         this.populateGridRows(section);
       }
+    },
+
+    async populateGenres(type) {
+      const genreSelect = document.getElementById('genreFilter');
+      if (!genreSelect) return;
+      genreSelect.innerHTML = '<option value="">All Genres</option>';
+      
+      let endpoint = '/genre/movie/list';
+      if (type === 'tv' || type === 'anime') {
+        endpoint = '/genre/tv/list';
+      } else if (type === 'trending') {
+        endpoint = '/genre/movie/list';
+      }
+      
+      const data = await this.tmdbFetch(endpoint);
+      if (data && data.genres) {
+        data.genres.forEach(g => {
+          genreSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+        });
+      }
+    },
+
+    handleFilterChange() {
+      this.populateGridRows(Router.current);
     },
 
     renderHero(item) {
@@ -530,11 +546,64 @@
     },
 
     async populateGridRows(type) {
-      let endpoint = type === 'tv' ? '/tv/popular' : type === 'trending' ? '/trending/all/week' : type === 'anime' ? '/discover/tv' : '/movie/popular';
-      let params = type === 'anime' ? '&with_genres=16&with_keywords=210024' : '';
+      const genreVal = document.getElementById('genreFilter')?.value || "";
+      const sortVal = document.getElementById('sortBy')?.value || "popularity.desc";
+      const grid = document.getElementById('movieGrid');
+      if (!grid) return;
+      
+      let endpoint = "";
+      let params = "";
+      
+      if (type === 'trending') {
+        endpoint = '/trending/all/week';
+        const data = await this.tmdbFetch(endpoint);
+        if (data && data.results) {
+          let results = data.results;
+          if (genreVal) {
+            results = results.filter(i => i.genre_ids && i.genre_ids.includes(parseInt(genreVal)));
+          }
+          if (sortVal === 'vote_average.desc') {
+            results.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+          } else if (sortVal === 'release_date.desc') {
+            results.sort((a, b) => {
+              const dateA = new Date(a.release_date || a.first_air_date || 0);
+              const dateB = new Date(b.release_date || b.first_air_date || 0);
+              return dateB - dateA;
+            });
+          } else {
+            results.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+          }
+          grid.innerHTML = results.map(item => UI.createCardMarkup(item)).join('');
+        }
+        return;
+      }
+      
+      if (type === 'movies') {
+        endpoint = '/discover/movie';
+      } else if (type === 'tv') {
+        endpoint = '/discover/tv';
+      } else if (type === 'anime') {
+        endpoint = '/discover/tv';
+        params += '&with_genres=16&with_keywords=210024';
+      }
+      
+      params += `&sort_by=${sortVal}`;
+      if (sortVal === 'vote_average.desc') {
+        params += '&vote_count.gte=100';
+      }
+      
+      if (genreVal) {
+        if (type === 'anime') {
+          params += `,${genreVal}`;
+        } else {
+          params += `&with_genres=${genreVal}`;
+        }
+      }
+      
       const data = await this.tmdbFetch(endpoint, params);
-      if(data && data.results) {
-        document.getElementById('movieGrid').innerHTML = data.results.map(i => ({...i, media_type: i.media_type || (type==='tv'||type==='anime'?'tv':'movie')})).map(item => UI.createCardMarkup(item)).join('');
+      if (data && data.results) {
+        const mediaType = (type === 'movies') ? 'movie' : 'tv';
+        grid.innerHTML = data.results.map(i => ({...i, media_type: i.media_type || mediaType})).map(item => UI.createCardMarkup(item)).join('');
       }
     },
 
@@ -591,7 +660,12 @@
       this.totalSeasons = data.number_of_seasons;
       const dropdown = document.getElementById('seasonDropdown');
       dropdown.innerHTML = Array.from({length: data.number_of_seasons}, (_, i) => `<option value="${i+1}">Season ${i+1}</option>`).join('');
-      this.handleSeasonChange(1);
+      
+      if (this.activeSeason > data.number_of_seasons) {
+        this.activeSeason = 1;
+      }
+      dropdown.value = this.activeSeason;
+      this.handleSeasonChange(this.activeSeason);
     },
 
     async handleSeasonChange(seasonNum) {
@@ -601,16 +675,36 @@
       this.totalEpisodesInActiveSeason = data.episodes.length;
       
       const grid = document.getElementById('episodeGrid');
-      grid.innerHTML = data.episodes.map(ep => `
-        <button class="ep-btn ${this.activeEpisode === ep.episode_number ? 'active' : ''}" data-ep="${ep.episode_number}" onclick="App.playTVEpisode(${ep.episode_number})">
-          ${ep.episode_number}
-        </button>
-      `).join('');
+      grid.innerHTML = data.episodes.map(ep => {
+        const title = ep.name || `Episode ${ep.episode_number}`;
+        const overview = ep.overview || "No synopsis available.";
+        const airDate = ep.air_date ? ep.air_date.split('-')[0] : 'N/A';
+        const runtime = ep.runtime ? `${ep.runtime}m` : '';
+        const thumb = ep.still_path 
+          ? `${TMDB_IMAGE_BASE}${ep.still_path}` 
+          : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=300';
+          
+        return `
+          <div class="episode-card ${this.activeEpisode === ep.episode_number ? 'active' : ''}" data-ep="${ep.episode_number}" onclick="App.playTVEpisode(${ep.episode_number})">
+            <div class="episode-card-thumb-wrap">
+              <img class="episode-card-thumb" src="${thumb}" alt="${title}" loading="lazy">
+              <div class="episode-card-play-overlay">
+                <span class="episode-card-play-btn">▶</span>
+              </div>
+            </div>
+            <div class="episode-card-info">
+              <div class="episode-card-num-title">${ep.episode_number}. ${title}</div>
+              <div class="episode-card-meta">${airDate} ${runtime ? `• ${runtime}` : ''}</div>
+              <p class="episode-card-overview">${overview}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
     },
 
     playTVEpisode(epNum) {
       this.activeEpisode = parseInt(epNum);
-      document.querySelectorAll('.ep-btn').forEach(btn => btn.classList.toggle('active', parseInt(btn.getAttribute('data-ep')) === epNum));
+      document.querySelectorAll('.episode-card').forEach(btn => btn.classList.toggle('active', parseInt(btn.getAttribute('data-ep')) === epNum));
       UI.openPlayer();
     },
 
@@ -634,13 +728,29 @@
     createCardMarkup(item, includeProgress = false) {
       const title = item.title || item.name;
       const rating = item.vote_average ? Number(item.vote_average).toFixed(1) : 'NR';
-      const normalized = { id: item.id, title: title, poster_path: item.poster_path, vote_average: rating, media_type: item.media_type || (item.title ? 'movie' : 'tv'), release_date: item.release_date || item.first_air_date || '', backdrop_path: item.backdrop_path };
+      const normalized = { 
+        id: item.id, 
+        title: title, 
+        poster_path: item.poster_path, 
+        vote_average: rating, 
+        media_type: item.media_type || (item.title ? 'movie' : 'tv'), 
+        release_date: item.release_date || item.first_air_date || '', 
+        backdrop_path: item.backdrop_path,
+        last_season: item.last_season || undefined,
+        last_episode: item.last_episode || undefined
+      };
+      
+      let progressText = `Resume • ${item.progress || 40}%`;
+      if (item.media_type === 'tv' && item.last_season && item.last_episode) {
+        progressText = `Resume • S${item.last_season} : E${item.last_episode}`;
+      }
+      
       return `
         <div class="card" onclick="UI.openDashboard(${JSON.stringify(normalized).replace(/"/g, '&quot;')})">
           <img class="card-poster" src="${item.poster_path ? TMDB_IMAGE_BASE+item.poster_path : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=350'}" alt="${title}" loading="lazy">
           <div class="card-rating">⭐ ${rating}</div>
           <div class="card-overlay"><div class="card-title">${title}</div></div>
-          ${includeProgress ? `<div class="card-progress-pill">Resume • ${item.progress || 40}%</div>` : ''}
+          ${includeProgress ? `<div class="card-progress-pill">${progressText}</div>` : ''}
           ${includeProgress ? `<div class="progress-bar" style="width: ${item.progress || 40}%"></div>` : ''}
         </div>
       `;
@@ -670,8 +780,8 @@
 
     async openDashboard(item, autoPlayDirectly = false) {
       App.currentMedia = item;
-      App.activeSeason = 1;
-      App.activeEpisode = 1;
+      App.activeSeason = item.last_season || 1;
+      App.activeEpisode = item.last_episode || 1;
 
       document.getElementById('dashTitle').innerText = item.title;
       document.getElementById('dashPoster').src = item.poster_path ? TMDB_IMAGE_BASE + item.poster_path : '';
@@ -689,7 +799,7 @@
       this.renderSynopsis(App.currentOverviewText);
 
       document.getElementById('dashPrimaryActions').innerHTML = `
-        <button class="btn btn-primary" onclick="${type === 'tv' ? 'App.playTVEpisode(1)' : 'UI.openPlayer()'}">▶ Watch Stream</button>
+        <button class="btn btn-primary" onclick="${type === 'tv' ? 'App.playTVEpisode(App.activeEpisode)' : 'UI.openPlayer()'}">▶ Watch Stream</button>
         <button class="btn btn-secondary" onclick="UI.openTrailerInNewTab()">🎬 View Trailer</button>
         <button class="btn btn-secondary" id="dashWatchlistBtn" style="padding:10px 14px;">📋 + Watchlist</button>
       `;
@@ -716,7 +826,7 @@
       document.getElementById('dashRecommendationsRow').innerHTML = recommendations?.results?.slice(0, 8).map(r => UI.createCardMarkup({...r, media_type: type})).join('') || '<p style="color:var(--muted)">None found.</p>';
 
       document.getElementById('dashboardOverlay').classList.add('open');
-      if (autoPlayDirectly) { if(type === 'tv') App.playTVEpisode(1); else UI.openPlayer(); }
+      if (autoPlayDirectly) { if(type === 'tv') App.playTVEpisode(App.activeEpisode); else UI.openPlayer(); }
     },
 
     closeDashboard() { document.getElementById('dashboardOverlay').classList.remove('open'); },
@@ -737,6 +847,7 @@
 
     openPlayer() {
       const item = App.currentMedia;
+      if(!item) return;
       document.getElementById('pTitle').innerText = item.title;
       
       const isTV = item.media_type === 'tv';
@@ -745,6 +856,11 @@
       
       this.loadIframeSource();
       document.getElementById('playerModal').classList.add('open');
+      
+      if (isTV) {
+        item.last_season = App.activeSeason;
+        item.last_episode = App.activeEpisode;
+      }
       ContinueWatching.save(item, Math.floor(Math.random() * 50) + 30);
     },
 
