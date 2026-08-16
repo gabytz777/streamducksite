@@ -724,3 +724,383 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
     scroll-behavior: auto !important;
   }
 }
+/* =========================================================
+   STREAMDUCK — MOBILE RESPONSIVE FIX
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  :root {
+    --gutter: 16px;
+  }
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ================= NAVIGATION ================= */
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-height: 58px;
+
+    padding: 7px var(--gutter);
+    gap: 8px;
+  }
+
+  .logo {
+    flex-shrink: 0;
+    gap: 7px;
+    font-size: 1.05rem;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  /*
+   * Desktop navigation is hidden on phones.
+   * JavaScript should toggle nav.menu-open.
+   */
+
+  .nav-links {
+    display: none;
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 10px var(--gutter);
+
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+
+    box-shadow: 0 10px 25px rgba(0,0,0,.45);
+
+    z-index: 1100;
+  }
+
+  nav.menu-open .nav-links {
+    display: flex;
+  }
+
+  .nav-btn {
+    width: 100%;
+    min-height: 48px;
+
+    padding: 11px 14px;
+
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .nav-btn.active {
+    color: var(--accent-ink);
+    background: var(--accent);
+  }
+
+
+  /* ================= SEARCH ================= */
+
+  .search-wrap {
+    display: none;
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 10px var(--gutter);
+
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+
+    z-index: 1100;
+  }
+
+  nav.search-open .search-wrap {
+    display: block;
+  }
+
+  nav.search-open .nav-links {
+    display: none;
+  }
+
+  #searchInput {
+    width: 100%;
+    min-height: 48px;
+  }
+
+
+  /* ================= NAV BUTTONS ================= */
+
+  .nav-actions {
+    margin-left: auto;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  .icon-btn .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /*
+   * IMPORTANT:
+   * The existing stylesheet hides this button on desktop.
+   * We explicitly enable it on phones.
+   */
+
+  .mobile-menu-btn {
+    display: grid;
+    place-items: center;
+  }
+
+
+  /* ================= HERO ================= */
+
+  #hero {
+    width: 100%;
+    margin: 0;
+
+    min-height: 430px;
+
+    border-radius: 0;
+  }
+
+  .hero-content {
+    width: 100%;
+    padding: 1.5rem var(--gutter);
+  }
+
+  .hero-title {
+    font-size: clamp(
+      1.7rem,
+      8vw,
+      2.25rem
+    );
+  }
+
+  .hero-overview {
+    font-size: .94rem;
+
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hero-actions .btn {
+    flex: 1 1 auto;
+  }
+
+
+  /* ================= SECTIONS ================= */
+
+  .section {
+    width: 100%;
+
+    padding-top: 1.7rem;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+
+  .section-header {
+    gap: 8px;
+    margin-bottom: .75rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .see-all {
+    min-height: 42px;
+    padding: 8px 12px;
+  }
+
+
+  /* ================= MOVIE ROWS ================= */
+
+  .scroll-row {
+    display: flex;
+
+    gap: 10px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /*
+     * Allows posters to reach the edge of the screen.
+     */
+    margin-right: calc(var(--gutter) * -1);
+    padding-right: var(--gutter);
+
+    padding-bottom: 12px;
+
+    -webkit-overflow-scrolling: touch;
+
+    overscroll-behavior-x: contain;
+
+    scrollbar-width: none;
+  }
+
+  .scroll-row::-webkit-scrollbar {
+    display: none;
+  }
+
+
+  /* ================= MOVIE CARDS ================= */
+
+  .card {
+    flex: 0 0 135px;
+    width: 135px;
+  }
+
+  .card-poster-wrap {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .card-poster {
+    width: 100%;
+
+    aspect-ratio: 2 / 3;
+
+    object-fit: cover;
+  }
+
+  .card-rating {
+    top: 6px;
+    right: 6px;
+
+    font-size: .75rem;
+
+    padding: 3px 6px;
+  }
+
+
+  /* ================= SEARCH RESULTS ================= */
+
+  .live-search-results {
+    max-height: 65vh;
+
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .live-search-item {
+    min-height: 62px;
+    padding: 10px 4px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .nav-actions {
+    gap: 4px;
+  }
+
+  .nav-actions .icon-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  #hero {
+    min-height: 400px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .card {
+    flex-basis: 125px;
+    width: 125px;
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICES
+   ========================================================= */
+
+@media (hover: none) {
+
+  .card:hover .card-poster-wrap {
+    border-color: transparent;
+  }
+
+  .nav-btn:hover {
+    background: transparent;
+  }
+
+  .icon-btn:hover {
+    background: var(--surface);
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+}
