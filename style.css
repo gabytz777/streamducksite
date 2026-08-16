@@ -190,7 +190,7 @@ nav {
 .live-search-name { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .live-search-meta { font-size: 0.82rem; color: var(--muted); }
 
-.mobile-menu-btn { display: none; }
+.mobile-menu-btn, .mobile-search-btn { display: none; }
 
 /* --------------------------------------------------------------- buttons -- */
 
@@ -649,7 +649,7 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
 
 .mobile-bottom-nav {
   display: none;
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1400;
+  position: fixed; top: auto; left: 0; right: 0; bottom: 0; z-index: 1400;
   background: var(--bg);
   border-top: 1px solid var(--line);
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
@@ -694,7 +694,7 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
     background: var(--bg); border-bottom: 1px solid var(--line); z-index: 999;
   }
   .search-wrap.active .search-icon { left: calc(var(--gutter) + 14px); }
-  .mobile-menu-btn { display: grid; }
+  .mobile-menu-btn, .mobile-search-btn { display: grid; }
   .nav-actions { margin-left: auto; }
   .mobile-bottom-nav { display: flex; }
   .hero-actions .btn { flex: 1; }
@@ -708,6 +708,10 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
 
 @media (max-width: 420px) {
   .episode-card-thumb-wrap { width: 88px; }
+  .logo { font-size: 1rem; gap: 6px; }
+  .logo-icon { width: 30px; height: 30px; }
+  .nav-actions { gap: 4px; }
+  .nav-actions .icon-btn { width: 40px; height: 40px; min-width: 40px; }
 }
 
 /* --------------------------------------------------------- reduced motion */

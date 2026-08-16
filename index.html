@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- Versioned: bump ?v= whenever style.css changes, so a cached copy of the
        old stylesheet can never be paired with new markup. -->
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body class="mode-dynamic theme-home">
 
@@ -72,14 +72,14 @@
   </div>
 
   <div class="nav-actions">
-    <button class="icon-btn mobile-menu-btn" aria-label="Search" onclick="UI.toggleSearch()">
+    <button class="icon-btn mobile-search-btn" aria-label="Search" onclick="UI.toggleSearch()">
       <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+    </button>
+    <button class="icon-btn mobile-menu-btn" aria-label="Open navigation menu" aria-expanded="false" onclick="UI.toggleMobileMenu()">
+      <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
     </button>
     <button class="icon-btn" aria-label="Settings" onclick="AppSettings.toggleDrawer()">
       <svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>
-    </button>
-    <button class="icon-btn mobile-menu-btn" aria-label="Menu" onclick="UI.toggleMobileMenu()">
-      <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
     </button>
   </div>
 </nav>
@@ -500,7 +500,7 @@
       document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-route') === route);
       });
-      document.getElementById('navLinks').classList.remove('mobile-open');
+      UI.closeMobileMenu();
 
       const app = document.getElementById('app');
       const template = document.getElementById((route === 'home') ? 'home-tpl' : 'grid-tpl');
@@ -539,6 +539,9 @@
         if (!document.getElementById('searchWrap').contains(e.target)) {
           document.getElementById('liveSearchResults').classList.remove('active');
         }
+        if (UI.isMobileMenuOpen() && !e.target.closest('#navLinks') && !e.target.closest('.mobile-menu-btn')) {
+          UI.closeMobileMenu();
+        }
       });
 
       document.addEventListener('keydown', (e) => {
@@ -546,7 +549,8 @@
         const player = document.getElementById('playerModal');
         const dash = document.getElementById('dashboardOverlay');
         const settings = document.getElementById('settingsOverlay');
-        if (player.classList.contains('open')) UI.closePlayer();
+        if (UI.isMobileMenuOpen()) UI.closeMobileMenu();
+        else if (player.classList.contains('open')) UI.closePlayer();
         else if (settings.classList.contains('open')) AppSettings.toggleDrawer();
         else if (dash.classList.contains('open')) UI.closeDashboard();
       });
@@ -805,7 +809,15 @@
   };
 
   const UI = {
-    toggleMobileMenu() { document.getElementById('navLinks').classList.toggle('mobile-open'); },
+    isMobileMenuOpen() { return document.getElementById('navLinks').classList.contains('mobile-open'); },
+    setMobileMenu(open) {
+      document.getElementById('navLinks').classList.toggle('mobile-open', open);
+      const btn = document.querySelector('.mobile-menu-btn');
+      if (btn) btn.setAttribute('aria-expanded', String(open));
+      return open;
+    },
+    toggleMobileMenu() { return this.setMobileMenu(!this.isMobileMenuOpen()); },
+    closeMobileMenu() { if (this.isMobileMenuOpen()) this.setMobileMenu(false); },
     toggleSearch() {
       const wrap = document.getElementById('searchWrap');
       wrap.classList.toggle('active');
