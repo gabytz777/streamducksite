@@ -100,7 +100,10 @@ h1, h2, h3 { line-height: 1.2; text-wrap: balance; }
 
 /* ----------------------------------------------------------------- nav --- */
 
-nav {
+/* Scoped away from .mobile-bottom-nav, which is also a <nav>. A bare `nav`
+   selector here handed it top:0, and with its own bottom:0 it stretched to
+   cover the whole viewport on phones. */
+nav:not(.mobile-bottom-nav) {
   position: sticky; top: 0; z-index: 1000;
   display: flex; align-items: center; gap: 1.25rem;
   min-height: 66px; padding: 8px var(--gutter); width: 100%;
@@ -669,7 +672,10 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
 /* ------------------------------------------------------------ responsive -- */
 
 @media (max-width: 900px) {
-  .dash-body { grid-template-columns: 1fr; gap: 2rem; }
+  /* minmax(0,1fr) not 1fr: a plain 1fr floors at the content's min-width, so
+     the wide cast/recommendation rows blew the column past the viewport and
+     the detail overlay scrolled sideways on phones. */
+  .dash-body { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
   .dash-header-content { flex-direction: column; align-items: flex-start; }
   .dash-hero { padding-top: 5rem; }
   .episode-list { max-height: none; }
@@ -677,7 +683,7 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
 
 @media (max-width: 768px) {
   body { padding-bottom: 74px; font-size: 16px; }
-  nav { min-height: 60px; gap: 0.75rem; }
+  nav:not(.mobile-bottom-nav) { min-height: 60px; gap: 0.75rem; }
   .nav-links { display: none; }
   .nav-links.mobile-open {
     display: flex; flex-direction: column;
@@ -743,7 +749,9 @@ footer .footer-mark { font-weight: 700; color: var(--text); }
 
   /* ================= NAVIGATION ================= */
 
-  nav {
+  /* Must exclude .mobile-bottom-nav — it is also a <nav>, and top:0 here
+     combined with its own bottom:0 stretches it over the whole screen. */
+  nav:not(.mobile-bottom-nav) {
     position: sticky;
     top: 0;
     z-index: 1000;
